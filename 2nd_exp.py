@@ -9,7 +9,7 @@ import timeit
 import random
 import functools
 import math
-
+from copy import deepcopy as dc
 ###############################################################################
 # Algorithms
 ###############################################################################
@@ -106,7 +106,7 @@ def move_down(arr, first, last):
         if ( largest < last ) and ( arr[largest] < arr[largest + 1] ):
             largest += 1
 
-        # right child is larger than     parent
+        # right child is larger than parent
         if arr[largest] > arr[first]:
             arr[largest], arr[first] = arr[first], arr[largest]
                 # move down to largest child
@@ -119,21 +119,22 @@ def move_down(arr, first, last):
 ###############################################################################
 # Analysis
 ###############################################################################
-def empirical_analysis(fun, size):
+def empirical_analysis(fun, arrs=[]):
     analysis = {}
     case_type = "_"
-    arr = []
-    for i in range(3):
+    local_arrs = dc(arrs)
+    for i in range(len(arrs)):
         if i is 0:
             case_type = 'best'
-            arr = list(range(size))
+            # arr = arrs[i]
+            # arr = list(range(size))
         if i is 1:
             case_type = 'avg'
-            arr = random.sample(range(100), size)
+            # arr = random.sample(range(100), size)
         if i is 2:
             case_type = 'worst'
-            arr = list(reversed(range(size)))
-
+            # arr = list(reversed(range(size)))
+        arr = local_arrs[i]
         temp = []+[arr[:]]
         t = timeit.Timer(functools.partial(fun, arr))
         temp += [arr] + [t.timeit(5)]
@@ -146,11 +147,13 @@ def main():
                  (shell_sort, "Shell Sort"),
                  (merge_sort, "Merge Sort"),
                  (heap_sort, "Heap Sort")]
+    size = 25
+    arrs = [list(range(size)) , random.sample(range(100), size) , list(reversed(range(size)))]
     for i in range(len(functions)):
         title = "Empirical Analysis of " + ("N^2" if i < len(functions)//2 else "N-Log-N") + " Algorithm : " + functions[i][1]
         divider = "-"*len(title)
         print(divider + "\n" + title + "\n"+divider)
-        analysis = empirical_analysis(functions[i][0], 25)
+        analysis = empirical_analysis(functions[i][0], arrs)
         print("Best Case:\n",
               "  "+str(round(analysis['best_case']['time']*1000,4))+" ms\n",
               "  "+str(analysis['best_case']['unsorted_arr'])+"\n",
