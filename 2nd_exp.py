@@ -84,7 +84,7 @@ def merge_sort(arr):
 def heap_sort(arr):
     # convert arr to heap
     length = len( arr ) - 1
-    leastParent = length / 2
+    leastParent = length // 2
     for i in range ( leastParent, -1, -1 ):
         move_down( arr, i, length )
 
@@ -92,18 +92,9 @@ def heap_sort(arr):
     for i in range ( length, 0, -1 ):
         if arr[0] > arr[i]:
             arr[0], arr[i] = arr[i], arr[0]
-            # swap( arr, 0, i )
             move_down( arr, 0, i - 1 )
     return arr
-#
-# def swap( A, x, y ):
-#     """
-#     Helper for move_down
-#     """
-#     tmp = A[x]
-#     A[x] = A[y]
-#     A[y] = tmp
-#
+
 def move_down(arr, first, last):
     """
     Helper for heap_sort
@@ -117,8 +108,7 @@ def move_down(arr, first, last):
         # right child is larger than     parent
         if arr[largest] > arr[first]:
             arr[largest], arr[first] = arr[first], arr[largest]
-            # swap( arr, largest, first )
-            # move down to largest child
+                # move down to largest child
             first = largest;
             largest = 2 * first + 1
         else:
