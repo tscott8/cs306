@@ -14,7 +14,7 @@ import math
 # Algorithms
 ###############################################################################
 
-# N-Squared
+# N^2
 def bubble_sort(arr):
     """
     """
@@ -26,9 +26,9 @@ def bubble_sort(arr):
                 arr[j + 1] = temp
     return arr
 
-
 def shell_sort(arr):
     """
+    A form of insertion sort
     """
     sublist_count = len(arr)//2
     while sublist_count > 0:
@@ -52,10 +52,78 @@ def gap_insertion_sort(arr, start, gap):
         arr[position] = current_value
 
 # N-Log-N
-def n1(arr):
+def merge_sort(arr):
+    if len(arr) > 1:
+        mid = len(arr)//2
+        left = arr[mid:]
+        right = arr[:mid]
+
+        merge_sort(left)
+        merge_sort(right)
+        i = 0
+        j = 0
+        k = 0
+        while i < len(left) and j < len(right):
+            if left[i] < right[j]:
+                arr[k] = left[i]
+                i += 1
+            else:
+                arr[k] = right[j]
+                j += 1
+            k += 1
+        while i < len(left):
+            arr[k] = left[i]
+            i += 1
+            k += 1
+        while j < len(right):
+            arr[k] = right[j]
+            j += 1
+            k += 1
     return arr
-def n2(arr):
+
+def heap_sort(arr):
+    # convert arr to heap
+    length = len( arr ) - 1
+    leastParent = length / 2
+    for i in range ( leastParent, -1, -1 ):
+        move_down( arr, i, length )
+
+    # flatten heap into sorted array
+    for i in range ( length, 0, -1 ):
+        if arr[0] > arr[i]:
+            arr[0], arr[i] = arr[i], arr[0]
+            # swap( arr, 0, i )
+            move_down( arr, 0, i - 1 )
     return arr
+#
+# def swap( A, x, y ):
+#     """
+#     Helper for move_down
+#     """
+#     tmp = A[x]
+#     A[x] = A[y]
+#     A[y] = tmp
+#
+def move_down(arr, first, last):
+    """
+    Helper for heap_sort
+    """
+    largest = 2 * first + 1
+    while largest <= last:
+        # right child exists and is larger than left child
+        if ( largest < last ) and ( arr[largest] < arr[largest + 1] ):
+            largest += 1
+
+        # right child is larger than     parent
+        if arr[largest] > arr[first]:
+            arr[largest], arr[first] = arr[first], arr[largest]
+            # swap( arr, largest, first )
+            # move down to largest child
+            first = largest;
+            largest = 2 * first + 1
+        else:
+            return # force exit
+
 
 ###############################################################################
 # Analysis
@@ -80,35 +148,18 @@ def empirical_analysis(fun, size):
         temp += [arr] + [t.timeit(5)]
         analysis[case_type+'_case'] = {'unsorted_arr': temp[0], 'sorted_arr': temp[1], 'time': temp[2]}
 
-    # arr = list(range(size))
-    # temp = []+[arr[:]]
-    # t = timeit.Timer(functools.partial(fun, arr))
-    # temp += [arr] + [t.timeit(5)]
-    # analysis['best_case'] = {'unsorted_arr': temp[0], 'sorted_arr': temp[1], 'time': temp[2]}
-    #
-    # arr = random.sample(range(100), size)
-    # temp = []+[arr[:]]
-    # t = timeit.Timer(functools.partial(fun, arr))
-    # temp += [arr] + [t.timeit(5)]
-    # analysis['avg_case'] = {'unsorted_arr': temp[0], 'sorted_arr': temp[1], 'time': temp[2]}
-    #
-    # arr = list(reversed(range(size)))
-    # temp = []+[arr[:]]
-    # t = timeit.Timer(functools.partial(fun, arr))
-    # temp += [arr] + [t.timeit(5)]
-    # analysis['worst_case'] = {'unsorted_arr': temp[0], 'sorted_arr': temp[1], 'time': temp[2]}
     return analysis
 
 def main():
     functions = [(bubble_sort, "Bubble Sort"),
                  (shell_sort, "Shell Sort"),
-                 (n1, "n1"),
-                 (n2, "n2")]
+                 (merge_sort, "Merge Sort"),
+                 (heap_sort, "Heap Sort")]
     for i in range(len(functions)):
-        title = "Empirical Analysis of " + ("N-Squared" if i < len(functions)//2 else "N-Log-N") + " Algorithm : " + functions[i][1]
+        title = "Empirical Analysis of " + ("N^2" if i < len(functions)//2 else "N-Log-N") + " Algorithm : " + functions[i][1]
         divider = "-"*len(title)
         print(divider + "\n" + title + "\n"+divider)
-        analysis = empirical_analysis(functions[i][0], 10)
+        analysis = empirical_analysis(functions[i][0], 25)
         print("Best Case:\n",
               "  "+str(round(analysis['best_case']['time']*1000,4))+" ms\n",
               "  "+str(analysis['best_case']['unsorted_arr'])+"\n",
@@ -121,6 +172,6 @@ def main():
               "  "+str(round(analysis['worst_case']['time']*1000,4))+" ms\n",
               "  "+str(analysis['worst_case']['unsorted_arr'])+"\n",
               "  "+str(analysis['worst_case']['sorted_arr']))
-
+        print()
 if __name__ == "__main__":
     main()
