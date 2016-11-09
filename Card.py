@@ -12,6 +12,9 @@ class Card(object):
     def __str__(self):
         return '%s of %s' % (Card.rank_names[self.rank], Card.suit_names[self.suit])
 
+    def __repr__(self):
+        return self.__str__()
+
     def __gt__(self, other):
         t1 = self.suit, self.rank
         t2 = other.suit, other.rank

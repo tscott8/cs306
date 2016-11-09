@@ -11,6 +11,7 @@ import functools
 import math
 from copy import deepcopy as dc
 from string import ascii_lowercase, ascii_uppercase, digits
+from Card import Deck
 ###############################################################################
 # Algorithms
 ###############################################################################
@@ -191,6 +192,16 @@ def generate_lists(data_type, size):
                  (["".join([chars[j+i] for i in range(str_len)]) for j in reversed(range(size))], "worst_case")]
     return lists
 
+def generate_card_lists():
+    lists = []
+    deck1 = Deck()
+    deck2 = Deck()
+    deck3 = Deck()
+    deck2.shuffle()
+    deck3.reverse()
+    lists = [(deck1.get_cards(), "best_case"), (deck2.get_cards(), "avg_case"), (deck3.get_cards(), "worst_case")]
+    return lists
+
 def main():
     functions = [(bubble_sort, "Bubble Sort"), (shell_sort, "Shell Sort"),
                  (merge_sort, "Merge Sort"), (heap_sort, "Heap Sort")]
@@ -199,6 +210,7 @@ def main():
     args += [generate_lists(int(), 25)]
     args += [generate_lists(float(), 25)]
     args += [generate_lists(str(), 25)]
+    args += [generate_card_lists()]
     for i in range(len(args)):
         display_analysis(functions, args[i])
 
