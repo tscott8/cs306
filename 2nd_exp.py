@@ -10,6 +10,7 @@ import random
 import functools
 import math
 from copy import deepcopy as dc
+from string import ascii_lowercase, ascii_uppercase, digits
 ###############################################################################
 # Algorithms
 ###############################################################################
@@ -54,6 +55,8 @@ def gap_insertion_sort(arr, start, gap):
 
 # N-Log-N
 def merge_sort(arr):
+    """
+    """
     if len(arr) > 1:
         mid = len(arr)//2
         left = arr[mid:]
@@ -83,6 +86,8 @@ def merge_sort(arr):
     return arr
 
 def heap_sort(arr):
+    """
+    """
     # convert arr to heap
     length = len( arr ) - 1
     leastParent = length // 2
@@ -119,36 +124,36 @@ def move_down(arr, first, last):
 ###############################################################################
 # Analysis
 ###############################################################################
+def compare_times(analysis):
+    """
+    """
+    times = []
+    return times
+
+def compare_space(analysis):
+    """
+    """
+    spaces = []
+    return spaces
+
 def empirical_analysis(fun, arrs=[]):
+    """
+    """
     analysis = {}
     case_type = "_"
     local_arrs = dc(arrs)
     for i in range(len(arrs)):
-        if i is 0:
-            case_type = 'best'
-            # arr = arrs[i]
-            # arr = list(range(size))
-        if i is 1:
-            case_type = 'avg'
-            # arr = random.sample(range(100), size)
-        if i is 2:
-            case_type = 'worst'
-            # arr = list(reversed(range(size)))
-        arr = local_arrs[i]
+        arr = local_arrs[i][0]
         temp = []+[arr[:]]
         t = timeit.Timer(functools.partial(fun, arr))
         temp += [arr] + [t.timeit(5)]
-        analysis[case_type+'_case'] = {'unsorted_arr': temp[0], 'sorted_arr': temp[1], 'time': temp[2]}
-
+        analysis[local_arrs[i][1]] = {'unsorted_arr': temp[0], 'sorted_arr': temp[1], 'time': temp[2]}
+    analysis['comparisons'] = compare_times(analysis)
     return analysis
 
-def main():
-    functions = [(bubble_sort, "Bubble Sort"),
-                 (shell_sort, "Shell Sort"),
-                 (merge_sort, "Merge Sort"),
-                 (heap_sort, "Heap Sort")]
-    size = 25
-    arrs = [list(range(size)) , random.sample(range(100), size) , list(reversed(range(size)))]
+def display_analysis(functions, arrs):
+    """
+    """
     for i in range(len(functions)):
         title = "Empirical Analysis of " + ("N^2" if i < len(functions)//2 else "N-Log-N") + " Algorithm : " + functions[i][1]
         divider = "-"*len(title)
@@ -167,5 +172,35 @@ def main():
               "  "+str(analysis['worst_case']['unsorted_arr'])+"\n",
               "  "+str(analysis['worst_case']['sorted_arr']))
         print()
+
+def generate_lists(data_type, size):
+    lists = []
+    if type(data_type) is int:
+        lists = [(list(range(size)), "best_case"),
+                 (random.sample(range(100), size), "avg_case"),
+                 (list(reversed(range(size))),"worst_case")]
+    if type(data_type) is float:
+        lists = [([round(x / 1.0, 4) for x in range(size)], "best_case"),
+                 ([round(x / float(random.randint(1,100)), 4) for x in range(size)], "avg_case"),
+                 ([round(x / 1.0, 4) for x in reversed(range(size))],"worst_case")]
+    if type(data_type) is str:
+        chars = ascii_lowercase + ascii_uppercase + digits
+        str_len = 5
+        lists = [(["".join([chars[j+i] for i in range(str_len)]) for j in range(size)], "best_case"),
+                 (["".join([random.choice(chars) for i in range(str_len)]) for j in range(size)], "avg_case"),
+                 (["".join([chars[j+i] for i in range(str_len)]) for j in reversed(range(size))], "worst_case")]
+    return lists
+
+def main():
+    functions = [(bubble_sort, "Bubble Sort"), (shell_sort, "Shell Sort"),
+                 (merge_sort, "Merge Sort"), (heap_sort, "Heap Sort")]
+    size = 25
+    args = []
+    args += [generate_lists(int(), 25)]
+    args += [generate_lists(float(), 25)]
+    args += [generate_lists(str(), 25)]
+    for i in range(len(args)):
+        display_analysis(functions, args[i])
+
 if __name__ == "__main__":
     main()
