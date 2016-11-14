@@ -4,6 +4,7 @@ Created on Mon Nov 7 12:06:15 2016
 
 @author: Tyler Scott
 @collaborator(s): Shem Sedrick
+@usageNotes: Make sure to install the necessary libraries listed below for this to work properly in python 3
 """
 import timeit
 import random
