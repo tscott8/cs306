@@ -2,15 +2,15 @@ import random
 
 
 class Card(object):
-    suit_names = ["club", "Diamond", "Spade", "Heart"]
-    rank_names = [None, "Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King"]
+    suit_names = ['\N{BLACK CLUB SUIT}', '\N{BLACK DIAMOND SUIT}', '\N{BLACK SPADE SUIT}', '\N{BLACK HEART SUIT}']
+    rank_names = [None, "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
 
     def __init__(self, suit=int(random.random()), value=int(random.random())):
         self.suit = suit % 4
         self.rank = value % 13 + 1
 
     def __str__(self):
-        return '%s of %s' % (Card.rank_names[self.rank], Card.suit_names[self.suit])
+        return '%s%s' % (Card.rank_names[self.rank], Card.suit_names[self.suit])
 
     def __repr__(self):
         return self.__str__()

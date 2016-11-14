@@ -26,21 +26,36 @@ def bubble_sort(arr, cmp_count=0):
     """
     for i in range(len(arr) - 1):
         for j in range(len(arr) - i - 1):
+            cmp_count += 1
             if arr[j] > arr[j + 1]:
                 arr[j], arr[j + 1] = arr[j + 1], arr[j]
-        cmp_count += j
     return arr, cmp_count
 
 # N^2
 def insertion_sort(arr, cmp_count=0):
-    for i in range(1,len(arr)):
-        j = i
-        while j > 0 and arr[j] < arr[j-1]:
-            arr[j], arr[j-1] = arr[j-1], arr[j]
-            j=j-1
-        cmp_count += j
+    for i in range(1, len(arr)):
+        current_value = arr[i]
+        pos = i
+        while (pos > 0) and (arr[pos-1] > current_value):
+            arr[pos] = arr[pos-1]
+            pos -= 1
+        cmp_count += 1
+        if pos != i:
+            arr[pos] = current_value
     return arr, cmp_count
 
+# N^2
+def selection_sort(arr, cmp_count=0):
+    for fill_slot in range(len(arr)-1,0,-1):
+        position_of_max = 0
+        for location in range(1,fill_slot+1):
+            cmp_count += 1
+            if arr[location] > arr[position_of_max]:
+                position_of_max = location
+        temp = arr[fill_slot]
+        arr[fill_slot] = arr[position_of_max]
+        arr[position_of_max] = temp
+    return arr, cmp_count
 
 # N-Log-N
 def shell_sort(arr, cmp_count=0):
@@ -49,7 +64,6 @@ def shell_sort(arr, cmp_count=0):
     """
     sublist_count = len(arr)//2
     while sublist_count > 0:
-        cmp_count += 1
         for start_pos in range(sublist_count):
             # cmp_count += sublist_count
             gap_insertion_sort(arr, start_pos, sublist_count)
@@ -197,34 +211,45 @@ def display_analysis(functions, arrs):
         divider = "-"*len(title)
         print(divider + "\n" + title + "\n"+divider)
         analysis = empirical_analysis(functions[i][0], arrs)
+        time_collections = [] + [analysis['ordered']['time']] + [analysis['random']['time']] + [analysis['reversed']['time']]
+        time_collections.sort()
+        print(tab([['Input', str(type( analysis['ordered']['unsorted_arr'][1]))]], tablefmt="orgtbl"))
         print(tab(
-        [['Input', analysis['avg_case']['unsorted_arr'][:5] + ['...']],
-         ['Output', analysis['avg_case']['sorted_arr'][:5] + ['...']]], tablefmt='orgtbl'))
-        print()
-        print(tab(
-            [['Best',    str(round(analysis['best_case']['time']*1000,4)) +' ms'],
-             ['Average', str(round(analysis['avg_case']['time']*1000,4))  +' ms'],
-             ['Worst',   str(round(analysis['worst_case']['time']*1000,4))+' ms'],
-             ['Compares',(analysis['best_case']['comparisons']+analysis['avg_case']['comparisons']+analysis['worst_case']['comparisons'])//3]
-            ], headers=['Case', 'Metric'], tablefmt='orgtbl'))
-        print()
+            [['Ordered', analysis['ordered']['unsorted_arr'][:5] + ['...'], analysis['ordered']['sorted_arr'][:5] + ['...'],  str(round(analysis['ordered']['time']*1000,4)) +' ms',
+              get_case(analysis['ordered']['time'], time_collections)],#, analysis['ordered']['comparisons']],
+             ['Random', analysis['random']['unsorted_arr'][:5] + ['...'], analysis['random']['sorted_arr'][:5] + ['...'], str(round(analysis['random']['time']*1000,4))  +' ms',
+              get_case(analysis['random']['time'], time_collections)],#, analysis['random']['comparisons']],
+             ['Reversed', analysis['reversed']['unsorted_arr'][:5] + ['...'], analysis['reversed']['sorted_arr'][:5] + ['...'],  str(round(analysis['reversed']['time']*1000,4))+' ms',
+              get_case(analysis['reversed']['time'], time_collections)]#, analysis['reversed']['comparisons']],
+            ], headers=['Type', 'Input', 'Output', 'Time', 'Case'],# 'Compares'],
+            tablefmt='orgtbl'))
+        print(tab([['Comparisons', analysis['random']['comparisons']]], tablefmt="orgtbl", numalign="right"),'\n')
+
+def get_case(time, time_collections):
+    time_collections.sort()
+    if time is time_collections[0]:
+        return 'Best'
+    if time is time_collections[1]:
+        return 'Average'
+    if time is time_collections[2]:
+        return 'Worst'
 
 def generate_lists(data_type, size):
     lists = []
     if type(data_type) is int:
-        lists = [(list(range(size)), "best_case"),
-                 (random.sample(range(size * 4), size), "avg_case"),
-                 (list(reversed(range(size))), "worst_case")]
+        lists = [(list(range(size)), "ordered"),
+                 (random.sample(range(size * 4), size), "random"),
+                 (list(reversed(range(size))), "reversed")]
     if type(data_type) is float:
-        lists = [([round(x / 1.0, 4) for x in range(size)], "best_case"),
-                 ([round(x / float(random.randint(1,100)), 4) for x in range(size)], "avg_case"),
-                 ([round(x / 1.0, 4) for x in reversed(range(size))],"worst_case")]
+        lists = [([round(x / 1.0, 4) for x in range(size)], "ordered"),
+                 ([round(x / float(random.randint(1,100)), 4) for x in range(size)], "random"),
+                 ([round(x / 1.0, 4) for x in reversed(range(size))],"reversed")]
     if type(data_type) is str:
         chars = ascii_lowercase + ascii_uppercase + digits
         str_len = 5
-        lists = [(["".join([chars[(j+i) % 62] for i in range(str_len)]) for j in range(size)], "best_case"),
-                 (["".join([random.choice(chars) for i in range(str_len)]) for j in range(size)], "avg_case"),
-                 (["".join([chars[(j+i) % 62] for i in range(str_len)]) for j in reversed(range(size))], "worst_case")]
+        lists = [(["".join([chars[(j+i) % 62] for i in range(str_len)]) for j in range(size)], "ordered"),
+                 (["".join([random.choice(chars) for i in range(str_len)]) for j in range(size)], "random"),
+                 (["".join([chars[(j+i) % 62] for i in range(str_len)]) for j in reversed(range(size))], "reversed")]
     return lists
 
 def generate_card_lists():
@@ -234,18 +259,18 @@ def generate_card_lists():
     deck3 = Deck()
     deck2.shuffle()
     deck3.reverse()
-    lists = [(deck1.get_cards(), "best_case"), (deck2.get_cards(), "avg_case"), (deck3.get_cards(), "worst_case")]
+    lists = [(deck1.get_cards(), "ordered"), (deck2.get_cards(), "random"), (deck3.get_cards(), "reversed")]
     return lists
 
 def main():
-    functions = [(bubble_sort, "Bubble Sort"), (insertion_sort, "Insertion Sort"),
+    functions = [(bubble_sort, "Bubble Sort"), (selection_sort, "Selection Sort"), (insertion_sort, "Insertion Sort"),
                  (shell_sort, "Shell Sort"), (merge_sort, "Merge Sort"), (heap_sort, "Heap Sort")]
-    size = 1000
+    size = 52
     args = []
-    args += [generate_lists(int(), size)]
+    # args += [generate_lists(int(), size)]
     # args += [generate_lists(float(), size)]
     # args += [generate_lists(str(), size)]
-    # args += [generate_card_lists()]
+    args += [generate_card_lists()]
     for i in range(len(args)):
         display_analysis(functions, args[i])
 
