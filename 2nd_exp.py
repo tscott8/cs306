@@ -13,11 +13,12 @@ import math
 from copy import deepcopy as dc
 from string import ascii_lowercase, ascii_uppercase, digits
 from Card import Deck
-from memory_profiler import profile
+# from memory_profiler import profile
+from tabulate import tabulate as tab
+
 ###############################################################################
 # Algorithms
 ###############################################################################
-
 
 # N^2
 def bubble_sort(arr, cmp_count=0):
@@ -25,12 +26,23 @@ def bubble_sort(arr, cmp_count=0):
     """
     for i in range(len(arr) - 1):
         for j in range(len(arr) - i - 1):
-            cmp_count += 1
             if arr[j] > arr[j + 1]:
                 arr[j], arr[j + 1] = arr[j + 1], arr[j]
+        cmp_count += j
+    return arr, cmp_count
+
+# N^2
+def insertion_sort(arr, cmp_count=0):
+    for i in range(1,len(arr)):
+        j = i
+        while j > 0 and arr[j] < arr[j-1]:
+            arr[j], arr[j-1] = arr[j-1], arr[j]
+            j=j-1
+        cmp_count += j
     return arr, cmp_count
 
 
+# N-Log-N
 def shell_sort(arr, cmp_count=0):
     """
     A form of insertion sort
@@ -39,13 +51,13 @@ def shell_sort(arr, cmp_count=0):
     while sublist_count > 0:
         cmp_count += 1
         for start_pos in range(sublist_count):
-            cmp_count += sublist_count
+            # cmp_count += sublist_count
             gap_insertion_sort(arr, start_pos, sublist_count)
             # print('CALLED GAP INSERT\n')
         # print("After increments of size", sublist_count, "The list is", arr)
         sublist_count = sublist_count//2
+        cmp_count += start_pos
     return arr, cmp_count
-
 
 def gap_insertion_sort(arr, start, gap):
     """
@@ -59,7 +71,6 @@ def gap_insertion_sort(arr, start, gap):
             arr[position] = arr[position - gap]
             position = position - gap
         arr[position] = current_value
-
 
 # N-Log-N
 def merge_sort(arr, cmp_count=0):
@@ -97,7 +108,7 @@ def merge_sort(arr, cmp_count=0):
             k += 1
     return arr, cmp_count
 
-
+# N-Log-N
 def heap_sort(arr, cmp_count=0):
     """
     """
@@ -114,7 +125,6 @@ def heap_sort(arr, cmp_count=0):
             arr[0], arr[i] = arr[i], arr[0]
             move_down( arr, 0, i - 1, cmp_count )
     return arr, cmp_count
-
 
 def move_down(arr, first, last, cmp_count):
     """
@@ -148,23 +158,19 @@ def time(fun, arr):
     t = timeit.Timer(functools.partial(fun, arr))
     return t.timeit(5)
 
-
 def space(analysis):
     """
     """
     spaces = []
     return spaces
 
-
 def comparison(fun, arr):
     """
-
     :param analysis:
     :return:
     """
     cmp_count = fun(arr, cmp_count=0)
     return cmp_count[1]
-
 
 def empirical_analysis(fun, arrs=[]):
     """
@@ -183,7 +189,6 @@ def empirical_analysis(fun, arrs=[]):
         analysis[local_arrs[i][1]] = {'unsorted_arr': temp[0], 'sorted_arr': temp[1], 'time': temp[2], 'comparisons': temp[3]}
     return analysis
 
-
 def display_analysis(functions, arrs):
     """
     """
@@ -192,23 +197,17 @@ def display_analysis(functions, arrs):
         divider = "-"*len(title)
         print(divider + "\n" + title + "\n"+divider)
         analysis = empirical_analysis(functions[i][0], arrs)
-        print("Best Case:\n",
-              "  Time: "+str(round(analysis['best_case']['time']*1000,4))+" ms\n",
-              "  Number of Comparisons: " + str(analysis['best_case']['comparisons']) + " \n",
-              "  Input: "+str(analysis['best_case']['unsorted_arr'])+"\n",
-              "  Output:"+str(analysis['best_case']['sorted_arr']))
-        print("Average Case:\n",
-              "  Time: "+str(round(analysis['avg_case']['time']*1000,4))+" ms\n",
-              "  Number of Comparisons: " + str(analysis['avg_case']['comparisons']) + " \n",
-              "  Input: "+str(analysis['avg_case']['unsorted_arr'])+"\n",
-              "  Output: "+str(analysis['avg_case']['sorted_arr']))
-        print("Worst Case:\n",
-              "  Time: "+str(round(analysis['worst_case']['time']*1000,4))+" ms\n",
-              "  Number of Comparisons: " + str(analysis['worst_case']['comparisons']) + " \n",
-              "  Input: "+str(analysis['worst_case']['unsorted_arr'])+"\n",
-              "  Output: "+str(analysis['worst_case']['sorted_arr']))
+        print(tab(
+        [['Input', analysis['avg_case']['unsorted_arr'][:5] + ['...']],
+         ['Output', analysis['avg_case']['sorted_arr'][:5] + ['...']]], tablefmt='orgtbl'))
         print()
-
+        print(tab(
+            [['Best',    str(round(analysis['best_case']['time']*1000,4)) +' ms'],
+             ['Average', str(round(analysis['avg_case']['time']*1000,4))  +' ms'],
+             ['Worst',   str(round(analysis['worst_case']['time']*1000,4))+' ms'],
+             ['Compares',(analysis['best_case']['comparisons']+analysis['avg_case']['comparisons']+analysis['worst_case']['comparisons'])//3]
+            ], headers=['Case', 'Metric'], tablefmt='orgtbl'))
+        print()
 
 def generate_lists(data_type, size):
     lists = []
@@ -228,7 +227,6 @@ def generate_lists(data_type, size):
                  (["".join([chars[(j+i) % 62] for i in range(str_len)]) for j in reversed(range(size))], "worst_case")]
     return lists
 
-
 def generate_card_lists():
     lists = []
     deck1 = Deck()
@@ -239,16 +237,15 @@ def generate_card_lists():
     lists = [(deck1.get_cards(), "best_case"), (deck2.get_cards(), "avg_case"), (deck3.get_cards(), "worst_case")]
     return lists
 
-
 def main():
-    functions = [(bubble_sort, "Bubble Sort"), (shell_sort, "Shell Sort"),
-                 (merge_sort, "Merge Sort"), (heap_sort, "Heap Sort")]
-    size = 25
+    functions = [(bubble_sort, "Bubble Sort"), (insertion_sort, "Insertion Sort"),
+                 (shell_sort, "Shell Sort"), (merge_sort, "Merge Sort"), (heap_sort, "Heap Sort")]
+    size = 1000
     args = []
     args += [generate_lists(int(), size)]
-    args += [generate_lists(float(), size)]
-    args += [generate_lists(str(), size)]
-    args += [generate_card_lists()]
+    # args += [generate_lists(float(), size)]
+    # args += [generate_lists(str(), size)]
+    # args += [generate_card_lists()]
     for i in range(len(args)):
         display_analysis(functions, args[i])
 
