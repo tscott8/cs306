@@ -1,18 +1,29 @@
 import java.util.concurrent.ThreadLocalRandom;
+import java.lang.Comparable;
+import java.util.Arrays;
 
 class Test {
-   public static void main() {
+   public static void main(String[] args) {
       int size = 25;
       Integer[][] intList = generateIntList(size);
       Sort<Integer> sort = new Sort<Integer>();
       Integer[][][] cases = new Integer[3][4][size];
       for (int i = 0; i < 3; i++) {
          for (int j = 1; j <= 4; j++) {
-            cases[i][j] = sort.sort(intList[i], j);
+            cases[i][j - 1] = sort.sort(Arrays.copyOf(intList[i], intList[i].length), j);
          }
       }
-      System.out.print(intList);
-      System.out.print(cases);
+      System.out.print("Int Sorted: ");
+      for (int i = 0; i < size; i++) {
+         if (i != 0) {
+            System.out.print(", ");
+         }
+         System.out.print("[" + intList[1][i] + "]");
+         System.out.print(cases[1][3][i]);
+      }
+
+      System.out.print("\n");
+
    }
 
    public static Integer[][] generateIntList(int size) {
@@ -20,17 +31,14 @@ class Test {
       for (int i = 0; i < 3; i++) {
          for (int j = 0; j < size; j++) {
             switch (i) {
-               case 0:
+               case 0: //Sorted
                   lists[i][j] = j;
                   break;
-               case 1:
+               case 1: //Random
                   lists[i][j] = ThreadLocalRandom.current().nextInt(0, size * 4);
                   break;
-               case 2:
+               case 2: //Reversed
                   lists[i][j] = size - j;
-                  break;
-               default:
-                  lists[i][j] = j;
                   break;
             }
          }
@@ -41,7 +49,7 @@ class Test {
 
 class Sort <T extends Comparable> {
    public <T extends Comparable> T[] sort(T[] arr, int flag) {
-      T[] answer;
+      T[] answer = null;
       switch (flag) {
          case 1:
             answer = bubbleSort(arr);
@@ -64,8 +72,8 @@ class Sort <T extends Comparable> {
 
    protected <T extends Comparable> T[] bubbleSort(T[] arr) {
       for (int i = 0; i < arr.length; i++) {
-         for (int j = 0; j < arr.length - i; i++) {
-            if (arr[j] > arr[j + 1]) {
+         for (int j = 0; j < (arr.length - i - 1); j++) {
+            if (arr[j].compareTo(arr[j + 1]) > 0) {
                T temp = arr[j];
                arr[j] = arr[j + 1];
                arr[j + 1] = temp;
@@ -94,7 +102,7 @@ class Sort <T extends Comparable> {
             temp = arr[outer];
             inner = outer;
             // one subpass (eg 0, 4, 8)
-            while (inner > h - 1 && arr[inner - h] >= temp) {
+            while (inner > h - 1 && temp.compareTo(arr[inner - h]) < 0) {
                arr[inner] = arr[inner - h];
                inner -= h;
             }
@@ -108,14 +116,15 @@ class Sort <T extends Comparable> {
    protected <T extends Comparable> T[] mergeSort(T[] arr) {
       if (arr.length > 1) {
          int mid = arr.length / 2;
-         left = Arrays.copyOfRange(arr, 0, mid);
-         right = Arrays.copyOfRange(arr, mid, arr.length);
+         T[] left = Arrays.copyOfRange(arr, 0, mid);
+         T[] right = Arrays.copyOfRange(arr, mid, arr.length);
 
          left = mergeSort(left);
          right = mergeSort(right);
-         int i, j, k = 0;
+         int i, j, k;
+         i = j = k = 0;
          while (i < left.length && j < right.length) {
-            if (left[i] < right[j]) {
+            if (left[i].compareTo(right[j]) < 0) {
                arr[k] = left[i];
                i++;
             } else {
@@ -142,35 +151,36 @@ class Sort <T extends Comparable> {
       int len = arr.length - 1;
       int leastParent = len / 2;
       for (int i = leastParent; i >= 0; i--) {
-         arr = moveDown(arr, i , len);
+         arr = moveDown(arr, i, len);
       }
 
-      for (int i = leastParent; i > 0; i--) {
-         if (arr[0] > arr[i]) {
-            T temp = arr[0];
-            arr[0] = arr[i];
-            arr[i] = temp;
-            arr = moveDown(arr, 0, i - 1);
-         }
+      int N = len;
+      for (int i = len; i > 0; i--) {
+         T temp = arr[0];
+         arr[0] = arr[i];
+         arr[i] = temp;
+         N--;
+         arr = moveDown(arr, 0, N);
       }
       return arr;
    }
 
-   protected <T extends Comparable> T[] moveDown(T[] arr, int first, int last) {
-      largest = 2 * first + 1;
-      while (largest <= last) {
-         if (largest < last && arr[largest] < arr[largest + 1]) {
-            largest++;
-         }
-         if (arr[largest] > arr[first]) {
-            T temp = arr[largest];
-            arr[largest] = arr[first];
-            arr[first] = temp;
-            largest = 2 * first + 1;
-         } else {
-            return arr;
-         }
+   protected <T extends Comparable> T[] moveDown(T[] arr, int i, int N) {
+      int left = 2 * i;
+      int right = 2 * i + 1;
+      int max = i;
+      if (left <= N && arr[left].compareTo(arr[i]) > 0) {
+         max = left;
+      }
+      if (right <= N && arr[right].compareTo(arr[max]) > 0) {
+         max = right;
+      }
 
+      if (max != i) {
+         T temp = arr[i];
+         arr[i] = arr[max];
+         arr[max] = temp;
+         arr = moveDown(arr, max, N);
       }
       return arr;
    }
