@@ -3,26 +3,30 @@ import java.lang.Comparable;
 import java.util.Arrays;
 
 class Test {
+   public static final String[] type = {"Sorted", "Random", "Reversed"};
+
    public static void main(String[] args) {
-      int size = 25;
+      int size = 52;
       Integer[][] intList = generateIntList(size);
       Sort<Integer> sort = new Sort<Integer>();
       Integer[][][] cases = new Integer[3][4][size];
+      long[][] times = new long[3][4];
       for (int i = 0; i < 3; i++) {
          for (int j = 1; j <= 4; j++) {
+            long startTime = System.nanoTime();
             cases[i][j - 1] = sort.sort(Arrays.copyOf(intList[i], intList[i].length), j);
+            long endTime = System.nanoTime();
+            times[i][j - 1] = endTime - startTime;
          }
-      }
-      System.out.print("Int Sorted: ");
-      for (int i = 0; i < size; i++) {
-         if (i != 0) {
-            System.out.print(", ");
-         }
-         System.out.print("[" + intList[1][i] + "]");
-         System.out.print(cases[1][3][i]);
       }
 
-      System.out.print("\n");
+      for (int i = 0; i < 4; i++) {
+         System.out.println(Sort.NAMES[i]);
+         for (int j = 0; j < 3; j++) {
+            System.out.println(type[j] + ": " + times[j][i] / 1000.0 + " microseconds");
+         }
+         System.out.println();
+      }
 
    }
 
@@ -48,6 +52,8 @@ class Test {
 }
 
 class Sort <T extends Comparable> {
+   public static final String[] NAMES = {"Bubble Sort", "Shell Sort", "Merge Sort", "Heap Sort"};
+
    public <T extends Comparable> T[] sort(T[] arr, int flag) {
       T[] answer = null;
       switch (flag) {
