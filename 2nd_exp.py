@@ -208,23 +208,27 @@ def display_analysis(functions, arrs):
     """
     """
     for i in range(len(functions)):
-        title = "Empirical Analysis of " + ("N^2" if i < len(functions)//2 else "N-Log-N") + " Algorithm : " + functions[i][1]
+        # title = "Empirical Analysis of " + ("N^2" if i < len(functions)//2 else "N-Log-N") + " Algorithm : " + functions[i][1]
+        title = ["Empirical Analysis of " + ("N^2" if i < len(functions)//2 else "N-Log-N") + " Algorithm : ", functions[i][1]]
         divider = "-"*len(title)
-        print(divider + "\n" + title + "\n"+divider)
+        # print(divider + "\n" + title + "\n"+divider)
         analysis = empirical_analysis(functions[i][0], arrs)
         time_collections = [] + [analysis['ordered']['time']] + [analysis['random']['time']] + [analysis['reversed']['time']]
-        time_collections.sort()
-        print(tab([['Input', str(type( analysis['ordered']['unsorted_arr'][1]))]], tablefmt="orgtbl"))
+        input_type = ['Input', str(type( analysis['ordered']['unsorted_arr'][1]))]
+        comparisons = ['Comparisons', analysis['random']['comparisons']]
+        print(tab([ title, input_type, comparisons], headers="firstrow", tablefmt="orgtbl"))
+        print()
         print(tab(
-            [['Ordered', analysis['ordered']['unsorted_arr'][:5] + ['...'], analysis['ordered']['sorted_arr'][:5] + ['...'],  str(round(analysis['ordered']['time']*1000,4)) +' ms',
+            [['Ordered', analysis['ordered']['unsorted_arr'][:5] + ['...'], analysis['ordered']['sorted_arr'][:5] + ['...'],  str(round(analysis['ordered']['time']*1000,4)) +' \N{GREEK SMALL LETTER MU}s',
               get_case(analysis['ordered']['time'], time_collections)],#, analysis['ordered']['comparisons']],
-             ['Random', analysis['random']['unsorted_arr'][:5] + ['...'], analysis['random']['sorted_arr'][:5] + ['...'], str(round(analysis['random']['time']*1000,4))  +' ms',
+             ['Random', analysis['random']['unsorted_arr'][:5] + ['...'], analysis['random']['sorted_arr'][:5] + ['...'], str(round(analysis['random']['time']*1000,4))  +' \N{GREEK SMALL LETTER MU}s',
               get_case(analysis['random']['time'], time_collections)],#, analysis['random']['comparisons']],
-             ['Reversed', analysis['reversed']['unsorted_arr'][:5] + ['...'], analysis['reversed']['sorted_arr'][:5] + ['...'],  str(round(analysis['reversed']['time']*1000,4))+' ms',
+             ['Reversed', analysis['reversed']['unsorted_arr'][:5] + ['...'], analysis['reversed']['sorted_arr'][:5] + ['...'],  str(round(analysis['reversed']['time']*1000,4))+' \N{GREEK SMALL LETTER MU}s',
               get_case(analysis['reversed']['time'], time_collections)]#, analysis['reversed']['comparisons']],
             ], headers=['Type', 'Input', 'Output', 'Time', 'Case'],# 'Compares'],
             tablefmt='orgtbl'))
-        print(tab([['Comparisons', analysis['random']['comparisons']]], tablefmt="orgtbl", numalign="right"),'\n')
+        print()
+        # print(tab([['Comparisons', analysis['random']['comparisons']]], tablefmt="orgtbl", numalign="right"),'\n')
 
 def get_case(time, time_collections):
     time_collections.sort()
@@ -267,10 +271,11 @@ def main():
     functions = [(bubble_sort, "Bubble Sort"), (selection_sort, "Selection Sort"), (insertion_sort, "Insertion Sort"),
                  (shell_sort, "Shell Sort"), (merge_sort, "Merge Sort"), (heap_sort, "Heap Sort")]
     size = 52
+    print('N^2=', pow(size,2), 'N-Log-N', size*math.log(size))
     args = []
-    # args += [generate_lists(int(), size)]
-    # args += [generate_lists(float(), size)]
-    # args += [generate_lists(str(), size)]
+    args += [generate_lists(int(), size)]
+    args += [generate_lists(float(), size)]
+    args += [generate_lists(str(), size)]
     args += [generate_card_lists()]
     for i in range(len(args)):
         display_analysis(functions, args[i])
