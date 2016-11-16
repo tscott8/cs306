@@ -205,52 +205,44 @@ def empirical_analysis(fun, arrs=[]):
         analysis[local_arrs[i][1]] = {'unsorted_arr': temp[0], 'sorted_arr': temp[1], 'time': temp[2], 'comparisons': temp[3]}
     return analysis
 
-def display_analysis(function, ftype, arrs, text_file):
+def get_instance(analysis, time):
+    if analysis['ordered']['time'] is time:
+        return ' (ord)'
+    if analysis['random']['time'] is time:
+        return ' (rand)'
+    if analysis['reversed']['time'] is time:
+        return ' (rev)'
+    return '?'
+
+def display_analysis(functions, arr, text_file):
     """
     """
     rounder = 1000
-    title = "Empirical Analysis of " + ftype + " Algorithm : " + function[1]
-    divider = "-"*len(title)*2
-    big_divider = (divider+'\n'+divider)
-    print(big_divider, file=text_file)
-    print(title, file=text_file)
-    print(big_divider, file=text_file)
-    for i in range(len(arrs)):
-        analysis = empirical_analysis(function[0], arrs[i])
+    print('',file=text_file)
+    print(tab(
+            [
+                ['Data Type', str(type( arr[1][0][0]))],
+                ['List Size', str(len(arr[1][0]))+' elements']
+            ], tablefmt="orgtbl"), file=text_file)
+    table = []
+    sort_proof = []
+    for i in range(len(functions)):
+        analysis = empirical_analysis(functions[i][0], arr)
         time_collections = [] + [analysis['ordered']['time']] + [analysis['random']['time']] + [analysis['reversed']['time']]
-        print('',file=text_file)
-        print(tab(
-                [
-                    ['Ordered', analysis['ordered']['unsorted_arr'][:5] + ['...'],
-                     analysis['ordered']['sorted_arr'][:5] + ['...'],
-                     str(analysis['ordered']['comparisons']),
-                     str(round(analysis['ordered']['time']*rounder,2)) +' \N{GREEK SMALL LETTER MU}s',
-                     get_case(analysis['ordered']['time'], time_collections)
-                    ],
-                    ['Random', analysis['random']['unsorted_arr'][:5] + ['...'],
-                     analysis['random']['sorted_arr'][:5] + ['...'],
-                     str(analysis['random']['comparisons']),
-                     str(round(analysis['random']['time']*rounder,2))  +' \N{GREEK SMALL LETTER MU}s',
-                     get_case(analysis['random']['time'], time_collections)
-                    ],
-                    ['Reversed', analysis['reversed']['unsorted_arr'][:5] + ['...'],
-                     analysis['reversed']['sorted_arr'][:5] + ['...'],
-                     str(analysis['reversed']['comparisons']),
-                     str(round(analysis['reversed']['time']*rounder,2))+' \N{GREEK SMALL LETTER MU}s',
-                     get_case(analysis['reversed']['time'], time_collections)
-                    ],
-                ], headers=['Type', 'Input '+str(type( analysis['ordered']['unsorted_arr'][1])), 'Output','Compares','Time', 'Case'],
-                tablefmt='orgtbl', stralign="left", numalign="left"), file=text_file)
-        print('',file=text_file)
-
-def get_case(time, time_collections):
-    time_collections.sort()
-    if time is time_collections[0]:
-        return 'Best'
-    if time is time_collections[1]:
-        return 'Average'
-    if time is time_collections[2]:
-        return 'Worst'
+        time_collections.sort()
+        table += [[functions[i][1],
+                   str(time_collections[0]*rounder)[:6] +' \N{GREEK SMALL LETTER MU}s' + get_instance(analysis, time_collections[0]),
+                   str(time_collections[1]*rounder)[:6] +' \N{GREEK SMALL LETTER MU}s' + get_instance(analysis, time_collections[1]),
+                   str(time_collections[2]*rounder)[:6] +' \N{GREEK SMALL LETTER MU}s' + get_instance(analysis, time_collections[2]),
+                   str(analysis['ordered']['comparisons'])]]
+        if i is 0:
+            sort_proof += [['Input', analysis['random']['unsorted_arr'][:5] + ['...']],
+                           ['Output', analysis['random']['sorted_arr'][:5] + ['...']]]
+    if len(sort_proof) > 0:
+        print(tab(sort_proof, tablefmt="orgtbl"), file=text_file)
+    print('',file=text_file)
+    print(tab(table, headers=['Algorithm', 'Best ', 'Average','Worst','Compares'],
+                tablefmt='orgtbl'), file=text_file)
 
 def generate_lists(data_type, size):
     lists = []
@@ -281,8 +273,12 @@ def generate_card_lists():
     return lists
 
 def main():
-    functions = [(bubble_sort, "Bubble Sort"), (selection_sort, "Selection Sort"), (insertion_sort, "Insertion Sort"),
-                 (shell_sort, "Shell Sort"), (merge_sort, "Merge Sort"), (heap_sort, "Heap Sort")]
+    functions = [(bubble_sort, "Bubble Sort", "N^2"),
+                 (selection_sort, "Selection Sort", "N^2"),
+                 (insertion_sort, "Insertion Sort", "N^2"),
+                 (shell_sort, "Shell Sort", "N-Log-N"),
+                 (merge_sort, "Merge Sort", "N-Log-N"),
+                 (heap_sort, "Heap Sort", "N-Log-N")]
     size = 52
     print('N^2=', pow(size,2), '\nN-Log-N', size*math.log(size))
     arrs = []
@@ -291,8 +287,8 @@ def main():
     arrs += [generate_lists(str(), size)]
     arrs += [generate_card_lists()]
     with codecs.open("results.org", "w", "utf-8") as text_file:
-        for i in range(len(functions)):
-            display_analysis(functions[i], ("N^2" if i < len(functions)//2 else "N-Log-N"), arrs, text_file)
+        for i in range(len(arrs)):
+            display_analysis(functions, arrs[i], text_file)
 
 if __name__ == "__main__":
     main()
