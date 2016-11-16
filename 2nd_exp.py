@@ -16,6 +16,7 @@ from string import ascii_lowercase, ascii_uppercase, digits
 from Card import Deck
 # from memory_profiler import profile
 from tabulate import tabulate as tab
+import codecs
 
 ###############################################################################
 # Algorithms
@@ -204,30 +205,47 @@ def empirical_analysis(fun, arrs=[]):
         analysis[local_arrs[i][1]] = {'unsorted_arr': temp[0], 'sorted_arr': temp[1], 'time': temp[2], 'comparisons': temp[3]}
     return analysis
 
-def display_analysis(functions, arrs):
+def display_analysis(function, ftype, arrs, text_file):
     """
     """
-    for i in range(len(functions)):
-        # title = "Empirical Analysis of " + ("N^2" if i < len(functions)//2 else "N-Log-N") + " Algorithm : " + functions[i][1]
-        title = ["Empirical Analysis of " + ("N^2" if i < len(functions)//2 else "N-Log-N") + " Algorithm : ", functions[i][1]]
-        divider = "-"*len(title)
-        # print(divider + "\n" + title + "\n"+divider)
-        analysis = empirical_analysis(functions[i][0], arrs)
+    title = "Empirical Analysis of " + ftype + " Algorithm : " + function[1]
+    divider = "-"*len(title)*2
+    big_divider = (divider+'\n'+divider)
+    print(big_divider, file=text_file)
+    print(title, file=text_file)
+    print(big_divider, file=text_file)
+    for i in range(len(arrs)):
+        # title = ["Empirical Analysis of " + ftype + " Algorithm : ", function[1]]
+        analysis = empirical_analysis(function[0], arrs[i])
         time_collections = [] + [analysis['ordered']['time']] + [analysis['random']['time']] + [analysis['reversed']['time']]
-        input_type = ['Input', str(type( analysis['ordered']['unsorted_arr'][1]))]
-        comparisons = ['Comparisons', analysis['random']['comparisons']]
-        print(tab([ title, input_type, comparisons], headers="firstrow", tablefmt="orgtbl"))
-        print()
+        # input_type = ['Input', str(type( analysis['ordered']['unsorted_arr'][1]))]
+        # comparisons = ['Comparisons', analysis['random']['comparisons']]
+        print('',file=text_file)
         print(tab(
-            [['Ordered', analysis['ordered']['unsorted_arr'][:5] + ['...'], analysis['ordered']['sorted_arr'][:5] + ['...'],  str(round(analysis['ordered']['time']*1000,4)) +' \N{GREEK SMALL LETTER MU}s',
-              get_case(analysis['ordered']['time'], time_collections)],#, analysis['ordered']['comparisons']],
-             ['Random', analysis['random']['unsorted_arr'][:5] + ['...'], analysis['random']['sorted_arr'][:5] + ['...'], str(round(analysis['random']['time']*1000,4))  +' \N{GREEK SMALL LETTER MU}s',
-              get_case(analysis['random']['time'], time_collections)],#, analysis['random']['comparisons']],
-             ['Reversed', analysis['reversed']['unsorted_arr'][:5] + ['...'], analysis['reversed']['sorted_arr'][:5] + ['...'],  str(round(analysis['reversed']['time']*1000,4))+' \N{GREEK SMALL LETTER MU}s',
-              get_case(analysis['reversed']['time'], time_collections)]#, analysis['reversed']['comparisons']],
-            ], headers=['Type', 'Input', 'Output', 'Time', 'Case'],# 'Compares'],
-            tablefmt='orgtbl'))
-        print()
+                [
+                    ['Ordered', analysis['ordered']['unsorted_arr'][:5] + ['...'],
+                     analysis['ordered']['sorted_arr'][:5] + ['...'],
+                     analysis['ordered']['comparisons'],
+                     str(round(analysis['ordered']['time']*1000,4)) +' \N{GREEK SMALL LETTER MU}s',
+                     get_case(analysis['ordered']['time'], time_collections)
+                    ],
+                    ['Random', analysis['random']['unsorted_arr'][:5] + ['...'],
+                     analysis['random']['sorted_arr'][:5] + ['...'],
+                     analysis['random']['comparisons'],
+                     str(round(analysis['random']['time']*1000,4))  +' \N{GREEK SMALL LETTER MU}s',
+                     get_case(analysis['random']['time'], time_collections)
+                    ],
+                    ['Reversed', analysis['reversed']['unsorted_arr'][:5] + ['...'],
+                     analysis['reversed']['sorted_arr'][:5] + ['...'],
+                     analysis['reversed']['comparisons'],
+                     str(round(analysis['reversed']['time']*1000,4))+' \N{GREEK SMALL LETTER MU}s',
+                     get_case(analysis['reversed']['time'], time_collections)
+                    ],
+                ], headers=['Type', 'Input '+str(type( analysis['ordered']['unsorted_arr'][1])), 'Output','Compares','Time', 'Case'],
+                tablefmt='orgtbl'), file=text_file)
+        print('',file=text_file)
+        # print(tab([comparisons], tablefmt="orgtbl"), file=text_file)
+        # print(divider, file=text_file)
         # print(tab([['Comparisons', analysis['random']['comparisons']]], tablefmt="orgtbl", numalign="right"),'\n')
 
 def get_case(time, time_collections):
@@ -271,14 +289,15 @@ def main():
     functions = [(bubble_sort, "Bubble Sort"), (selection_sort, "Selection Sort"), (insertion_sort, "Insertion Sort"),
                  (shell_sort, "Shell Sort"), (merge_sort, "Merge Sort"), (heap_sort, "Heap Sort")]
     size = 52
-    print('N^2=', pow(size,2), 'N-Log-N', size*math.log(size))
-    args = []
-    args += [generate_lists(int(), size)]
-    args += [generate_lists(float(), size)]
-    args += [generate_lists(str(), size)]
-    args += [generate_card_lists()]
-    for i in range(len(args)):
-        display_analysis(functions, args[i])
+    print('N^2=', pow(size,2), '\nN-Log-N', size*math.log(size))
+    arrs = []
+    arrs += [generate_lists(int(), size)]
+    arrs += [generate_lists(float(), size)]
+    arrs += [generate_lists(str(), size)]
+    arrs += [generate_card_lists()]
+    with codecs.open("results.org", "w", "utf-8") as text_file:
+        for i in range(len(functions)):
+            display_analysis(functions[i], ("N^2" if i < len(functions)//2 else "N-Log-N"), arrs, text_file)
 
 if __name__ == "__main__":
     main()
