@@ -218,12 +218,11 @@ def display_analysis(functions, arr, text_file):
     """
     """
     rounder = 1000
-    print('',file=text_file)
     print(tab(
             [
                 ['Data Type', str(type( arr[1][0][0]))],
                 ['List Size', str(len(arr[1][0]))+' elements']
-            ], tablefmt="orgtbl"), file=text_file)
+            ],headers=['Stat', 'Value'], tablefmt="orgtbl"), file=text_file)
     table = []
     sort_proof = []
     for i in range(len(functions)):
@@ -289,6 +288,8 @@ def main():
     with codecs.open("results.org", "w", "utf-8") as text_file:
         for i in range(len(arrs)):
             display_analysis(functions, arrs[i], text_file)
+            # print(('-'*150)+'\n',file=text_file)
+            print('\\\\',file=text_file)
 
 if __name__ == "__main__":
     main()
