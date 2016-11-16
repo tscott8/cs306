@@ -215,38 +215,32 @@ def display_analysis(function, ftype, arrs, text_file):
     print(title, file=text_file)
     print(big_divider, file=text_file)
     for i in range(len(arrs)):
-        # title = ["Empirical Analysis of " + ftype + " Algorithm : ", function[1]]
         analysis = empirical_analysis(function[0], arrs[i])
         time_collections = [] + [analysis['ordered']['time']] + [analysis['random']['time']] + [analysis['reversed']['time']]
-        # input_type = ['Input', str(type( analysis['ordered']['unsorted_arr'][1]))]
-        # comparisons = ['Comparisons', analysis['random']['comparisons']]
         print('',file=text_file)
         print(tab(
                 [
                     ['Ordered', analysis['ordered']['unsorted_arr'][:5] + ['...'],
                      analysis['ordered']['sorted_arr'][:5] + ['...'],
-                     analysis['ordered']['comparisons'],
+                     str(analysis['ordered']['comparisons']),
                      str(round(analysis['ordered']['time']*1000,4)) +' \N{GREEK SMALL LETTER MU}s',
                      get_case(analysis['ordered']['time'], time_collections)
                     ],
                     ['Random', analysis['random']['unsorted_arr'][:5] + ['...'],
                      analysis['random']['sorted_arr'][:5] + ['...'],
-                     analysis['random']['comparisons'],
+                     str(analysis['random']['comparisons']),
                      str(round(analysis['random']['time']*1000,4))  +' \N{GREEK SMALL LETTER MU}s',
                      get_case(analysis['random']['time'], time_collections)
                     ],
                     ['Reversed', analysis['reversed']['unsorted_arr'][:5] + ['...'],
                      analysis['reversed']['sorted_arr'][:5] + ['...'],
-                     analysis['reversed']['comparisons'],
+                     str(analysis['reversed']['comparisons']),
                      str(round(analysis['reversed']['time']*1000,4))+' \N{GREEK SMALL LETTER MU}s',
                      get_case(analysis['reversed']['time'], time_collections)
                     ],
                 ], headers=['Type', 'Input '+str(type( analysis['ordered']['unsorted_arr'][1])), 'Output','Compares','Time', 'Case'],
-                tablefmt='orgtbl'), file=text_file)
+                tablefmt='orgtbl', stralign="left", numalign="left"), file=text_file)
         print('',file=text_file)
-        # print(tab([comparisons], tablefmt="orgtbl"), file=text_file)
-        # print(divider, file=text_file)
-        # print(tab([['Comparisons', analysis['random']['comparisons']]], tablefmt="orgtbl", numalign="right"),'\n')
 
 def get_case(time, time_collections):
     time_collections.sort()
