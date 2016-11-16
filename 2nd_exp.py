@@ -172,7 +172,7 @@ def time(fun, arr):
     """
     """
     t = timeit.Timer(functools.partial(fun, arr))
-    return t.timeit(5)
+    return t.timeit(1000)
 
 def space(analysis):
     """
@@ -208,6 +208,7 @@ def empirical_analysis(fun, arrs=[]):
 def display_analysis(function, ftype, arrs, text_file):
     """
     """
+    rounder = 1000
     title = "Empirical Analysis of " + ftype + " Algorithm : " + function[1]
     divider = "-"*len(title)*2
     big_divider = (divider+'\n'+divider)
@@ -223,19 +224,19 @@ def display_analysis(function, ftype, arrs, text_file):
                     ['Ordered', analysis['ordered']['unsorted_arr'][:5] + ['...'],
                      analysis['ordered']['sorted_arr'][:5] + ['...'],
                      str(analysis['ordered']['comparisons']),
-                     str(round(analysis['ordered']['time']*1000,4)) +' \N{GREEK SMALL LETTER MU}s',
+                     str(round(analysis['ordered']['time']*rounder,2)) +' \N{GREEK SMALL LETTER MU}s',
                      get_case(analysis['ordered']['time'], time_collections)
                     ],
                     ['Random', analysis['random']['unsorted_arr'][:5] + ['...'],
                      analysis['random']['sorted_arr'][:5] + ['...'],
                      str(analysis['random']['comparisons']),
-                     str(round(analysis['random']['time']*1000,4))  +' \N{GREEK SMALL LETTER MU}s',
+                     str(round(analysis['random']['time']*rounder,2))  +' \N{GREEK SMALL LETTER MU}s',
                      get_case(analysis['random']['time'], time_collections)
                     ],
                     ['Reversed', analysis['reversed']['unsorted_arr'][:5] + ['...'],
                      analysis['reversed']['sorted_arr'][:5] + ['...'],
                      str(analysis['reversed']['comparisons']),
-                     str(round(analysis['reversed']['time']*1000,4))+' \N{GREEK SMALL LETTER MU}s',
+                     str(round(analysis['reversed']['time']*rounder,2))+' \N{GREEK SMALL LETTER MU}s',
                      get_case(analysis['reversed']['time'], time_collections)
                     ],
                 ], headers=['Type', 'Input '+str(type( analysis['ordered']['unsorted_arr'][1])), 'Output','Compares','Time', 'Case'],
