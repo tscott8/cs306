@@ -333,7 +333,6 @@ def display_graphs(graph_tables, sizes):
         plt.legend(headers, loc='upper left')
         plt.autoscale()
         plt.show()
-    # print(bubble_graph)
 
 
 def generate_lists(data_type, size):
