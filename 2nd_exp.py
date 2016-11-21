@@ -17,6 +17,7 @@ from Card import Deck
 # from memory_profiler import profile
 from tabulate import tabulate as tab
 import codecs
+from matplotlib import pyplot as plt
 
 ###############################################################################
 # Algorithms
@@ -244,7 +245,7 @@ def display_analysis(functions, arr, text_file):
                 tablefmt='orgtbl'), file=text_file)
     return table
 
-def build_graph(tables):
+def build_graph_tables(tables, text_file):
     new_table = []
     bubble = ['Bubble']
     select = ['Selection']
@@ -260,8 +261,80 @@ def build_graph(tables):
         merge += [float(table[1][4][2][:6])]
         heap += [float(table[1][5][2][:6])]
     new_table = [bubble]+[select]+[insert]+[shell]+[merge]+[heap]
+    print(tab(new_table,tablefmt='orgtbl', numalign="right", headers=['Sort','Int','Float', 'String', 'Card']),file=text_file)
+    return new_table
 
-    return tab(new_table,tablefmt='orgtbl', numalign="right", headers=['Sort','Int','Float', 'String', 'Card'])
+def display_graphs(graph_tables, sizes):
+    bubble_graph = {'int':[],'float':[],'str':[],'card':[]}
+    select_graph = {'int':[],'float':[],'str':[],'card':[]}
+    insert_graph = {'int':[],'float':[],'str':[],'card':[]}
+    shell_graph = {'int':[],'float':[],'str':[],'card':[]}
+    merge_graph = {'int':[],'float':[],'str':[],'card':[]}
+    heap_graph = {'int':[],'float':[],'str':[],'card':[]}
+    headers = ['int','float','str','card']
+    graph = [{},{},{},{},{},{}]
+    print (graph)
+    for table in graph_tables:
+    #    temp = {'int':[],'float':[],'str':[],'card':[]}
+    #    for i in range(6):
+    #        temp['title'] = table[i][0]
+    #        temp['int'] += [table[i][1]]
+    #        temp['float'] += [table[i][2]]
+    #        temp['str'] += [table[i][3]]
+    #        temp['card'] += [table[i][4]]
+    #        graph[i] = temp
+
+        bubble_graph['title'] = table[0][0]
+        bubble_graph['int'] += [table[0][1]]
+        bubble_graph['float'] += [table[0][2]]
+        bubble_graph['str'] += [table[0][3]]
+        bubble_graph['card'] += [table[0][4]]
+
+        select_graph['title'] = table[1][0]
+        select_graph['int'] += [table[1][1]]
+        select_graph['float'] += [table[1][2]]
+        select_graph['str'] += [table[1][3]]
+        select_graph['card'] += [table[1][4]]
+
+        insert_graph['title'] = table[2][0]
+        insert_graph['int'] += [table[2][1]]
+        insert_graph['float'] += [table[2][2]]
+        insert_graph['str'] += [table[2][3]]
+        insert_graph['card'] += [table[2][4]]
+
+        shell_graph['title'] = table[3][0]
+        shell_graph['int'] += [table[3][1]]
+        shell_graph['float'] += [table[3][2]]
+        shell_graph['str'] += [table[3][3]]
+        shell_graph['card'] += [table[3][4]]
+
+        merge_graph['title'] = table[4][0]
+        merge_graph['int'] += [table[4][1]]
+        merge_graph['float'] += [table[4][2]]
+        merge_graph['str'] += [table[4][3]]
+        merge_graph['card'] += [table[4][4]]
+
+        heap_graph['title'] = table[5][0]
+        heap_graph['int'] += [table[5][1]]
+        heap_graph['float'] += [table[5][2]]
+        heap_graph['str'] += [table[5][3]]
+        heap_graph['card'] += [table[5][4]]
+
+    graph = [bubble_graph, select_graph, insert_graph, shell_graph, merge_graph, heap_graph]
+    print(np.array(graph))
+    for alg in graph:
+        plt.plot(alg['int'], lw=2.0)
+        plt.plot(alg['float'], lw=2.0)
+        plt.plot(alg['str'], lw=2.0)
+        # plt.plot(alg['card'], lw=2.0)
+        plt.title(alg['title'])
+        plt.ylabel('time (us)')
+        plt.xlabel('size')
+        plt.legend(headers, loc='upper left')
+        plt.autoscale()
+        plt.show()
+    # print(bubble_graph)
+
 
 def generate_lists(data_type, size):
     lists = []
@@ -291,27 +364,57 @@ def generate_card_lists():
     lists = [(deck1.get_cards(), "ordered"), (deck2.get_cards(), "random"), (deck3.get_cards(), "reversed")]
     return lists
 
-def main():
+def run(size, text_file):
     functions = [(bubble_sort, "Bubble Sort", "N^2"),
                  (selection_sort, "Selection Sort", "N^2"),
                  (insertion_sort, "Insertion Sort", "N^2"),
                  (shell_sort, "Shell Sort", "N-Log-N"),
                  (merge_sort, "Merge Sort", "N-Log-N"),
                  (heap_sort, "Heap Sort", "N-Log-N")]
-    size = 52
     print('N^2=', pow(size,2), '\nN-Log-N', size*math.log(size))
     arrs = []
     arrs += [generate_lists(int(), size)]
     arrs += [generate_lists(float(), size)]
     arrs += [generate_lists(str(), size)]
     arrs += [generate_card_lists()]
-    tables = []
-    with codecs.open("results.org", "w", "utf-8") as text_file:
-        for i in range(len(arrs)):
-            tables+=[(str(type(arrs[i][1][0][0])), display_analysis(functions, arrs[i], text_file))]
-            # print(('-'*150)+'\n',file=text_file)
-            print('\\\\',file=text_file)
-        print(build_graph(tables), file=text_file)
+    collected_tables = []
+    for i in range(len(arrs)):
+        collected_tables+=[(str(type(arrs[i][1][0][0])), display_analysis(functions, arrs[i], text_file))]
+        print('\\\\',file=text_file)
+    graph_table = build_graph_tables(collected_tables, text_file)
+    return graph_table
+
+def main():
+    graph_tables = []
+    sizes = []
+    for i in range(1,11):
+        s = 10*i
+        with codecs.open("results"+str(i)+".org", "w", "utf-8") as text_file:
+            graph_tables += [run(s, text_file)]
+            sizes += [s]
+    display_graphs(graph_tables, sizes)
+    # functions = [(bubble_sort, "Bubble Sort", "N^2"),
+    #              (selection_sort, "Selection Sort", "N^2"),
+    #              (insertion_sort, "Insertion Sort", "N^2"),
+    #              (shell_sort, "Shell Sort", "N-Log-N"),
+    #              (merge_sort, "Merge Sort", "N-Log-N"),
+    #              (heap_sort, "Heap Sort", "N-Log-N")]
+    # size = 52
+    # print('N^2=', pow(size,2), '\nN-Log-N', size*math.log(size))
+    # arrs = []
+    # arrs += [generate_lists(int(), size)]
+    # arrs += [generate_lists(float(), size)]
+    # arrs += [generate_lists(str(), size)]
+    # arrs += [generate_card_lists()]
+    # tables = []
+    # with codecs.open("results.org", "w", "utf-8") as text_file:
+    #     for i in range(len(arrs)):
+    #         tables+=[(str(type(arrs[i][1][0][0])), display_analysis(functions, arrs[i], text_file))]
+    #         # print(('-'*150)+'\n',file=text_file)
+    #         print('\\\\',file=text_file)
+    #
+    #     collections
+    #     print(build_graph_tables(tables), file=text_file)
 
 if __name__ == "__main__":
     main()
