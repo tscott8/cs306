@@ -242,6 +242,26 @@ def display_analysis(functions, arr, text_file):
     print('',file=text_file)
     print(tab(table, headers=['Algorithm', 'Best ', 'Average','Worst','Compares'],
                 tablefmt='orgtbl'), file=text_file)
+    return table
+
+def build_graph(tables):
+    new_table = []
+    bubble = ['Bubble']
+    select = ['Selection']
+    insert = ['Insertion']
+    shell = ['Shell']
+    merge = ['Merge']
+    heap = ['Heap']
+    for table in tables:
+        bubble += [float(table[1][0][2][:6])]
+        select += [float(table[1][1][2][:6])]
+        insert += [float(table[1][2][2][:6])]
+        shell += [float(table[1][3][2][:6])]
+        merge += [float(table[1][4][2][:6])]
+        heap += [float(table[1][5][2][:6])]
+    new_table = [bubble]+[select]+[insert]+[shell]+[merge]+[heap]
+
+    return tab(new_table,tablefmt='orgtbl', numalign="right", headers=['Sort','Int','Float', 'String', 'Card'])
 
 def generate_lists(data_type, size):
     lists = []
@@ -285,11 +305,13 @@ def main():
     arrs += [generate_lists(float(), size)]
     arrs += [generate_lists(str(), size)]
     arrs += [generate_card_lists()]
+    tables = []
     with codecs.open("results.org", "w", "utf-8") as text_file:
         for i in range(len(arrs)):
-            display_analysis(functions, arrs[i], text_file)
+            tables+=[(str(type(arrs[i][1][0][0])), display_analysis(functions, arrs[i], text_file))]
             # print(('-'*150)+'\n',file=text_file)
             print('\\\\',file=text_file)
+        print(build_graph(tables), file=text_file)
 
 if __name__ == "__main__":
     main()
