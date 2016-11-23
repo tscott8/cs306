@@ -1,0 +1,72 @@
+| Stat      | Value         |
+|-----------+---------------|
+| Data Type | <class 'int'> |
+| List Size | 60 elements   |
+| Input  | [1, 119, 75, 206, 158, '...'] |
+| Output | [1, 18, 24, 28, 40, '...']    |
+
+| Algorithm      | Best            | Average          | Worst            |   Compares |
+|----------------+-----------------+------------------+------------------+------------|
+| Bubble Sort    | 333.37 μs (rev) | 343.21 μs (rand) | 347.91 μs (ord)  |       1770 |
+| Selection Sort | 343.50 μs (ord) | 347.14 μs (rand) | 356.46 μs (rev)  |       1770 |
+| Insertion Sort | 15.073 μs (ord) | 15.223 μs (rand) | 16.111 μs (rev)  |         59 |
+| Shell Sort     | 99.792 μs (ord) | 110.09 μs (rev)  | 110.98 μs (rand) |         51 |
+| Merge Sort     | 249.46 μs (rev) | 249.86 μs (rand) | 256.89 μs (ord)  |         91 |
+| Heap Sort      | 216.03 μs (rev) | 216.09 μs (rand) | 216.83 μs (ord)  |        224 |
+\\
+| Stat      | Value           |
+|-----------+-----------------|
+| Data Type | <class 'float'> |
+| List Size | 60 elements     |
+| Input  | [0.0, 0.0435, 0.6667, 0.0357, 0.1818, '...'] |
+| Output | [0.0, 0.0357, 0.0435, 0.1316, 0.1573, '...'] |
+
+| Algorithm      | Best             | Average          | Worst            |   Compares |
+|----------------+------------------+------------------+------------------+------------|
+| Bubble Sort    | 325.01 μs (rand) | 325.13 μs (rev)  | 327.46 μs (ord)  |       1770 |
+| Selection Sort | 329.53 μs (ord)  | 330.01 μs (rev)  | 334.61 μs (rand) |       1770 |
+| Insertion Sort | 14.970 μs (rand) | 15.168 μs (ord)  | 15.618 μs (rev)  |         59 |
+| Shell Sort     | 96.475 μs (rev)  | 97.088 μs (ord)  | 99.014 μs (rand) |         51 |
+| Merge Sort     | 243.05 μs (rev)  | 243.63 μs (ord)  | 247.59 μs (rand) |         91 |
+| Heap Sort      | 210.60 μs (ord)  | 212.38 μs (rand) | 219.32 μs (rev)  |        224 |
+\\
+| Stat      | Value         |
+|-----------+---------------|
+| Data Type | <class 'str'> |
+| List Size | 60 elements   |
+| Input  | ['1mMVk', 'cIUpZ', 'Ai92q', 'b7vDd', 'ybAGV', '...'] |
+| Output | ['0Oehv', '13Lvn', '1mMVk', '2ZOJi', '2n1Mx', '...'] |
+
+| Algorithm      | Best             | Average          | Worst            |   Compares |
+|----------------+------------------+------------------+------------------+------------|
+| Bubble Sort    | 352.77 μs (ord)  | 355.57 μs (rev)  | 374.74 μs (rand) |       1770 |
+| Selection Sort | 375.65 μs (rand) | 376.69 μs (ord)  | 394.92 μs (rev)  |       1770 |
+| Insertion Sort | 18.092 μs (rand) | 18.265 μs (rev)  | 21.951 μs (ord)  |         59 |
+| Shell Sort     | 102.21 μs (rev)  | 104.29 μs (ord)  | 110.65 μs (rand) |         51 |
+| Merge Sort     | 250.37 μs (ord)  | 257.72 μs (rand) | 266.59 μs (rev)  |         91 |
+| Heap Sort      | 218.46 μs (rand) | 220.54 μs (ord)  | 229.30 μs (rev)  |        224 |
+\\
+| Stat      | Value               |
+|-----------+---------------------|
+| Data Type | <class 'Card.Card'> |
+| List Size | 52 elements         |
+| Input  | [J♠, 10♦, Q♦, A♠, 5♣, '...'] |
+| Output | [A♣, 2♣, 3♣, 4♣, 5♣, '...']  |
+
+| Algorithm      | Best            | Average          | Worst            |   Compares |
+|----------------+-----------------+------------------+------------------+------------|
+| Bubble Sort    | 1081.0 μs (ord) | 1103.9 μs (rev)  | 1128.0 μs (rand) |       1326 |
+| Selection Sort | 1075.7 μs (ord) | 1086.2 μs (rev)  | 1157.7 μs (rand) |       1326 |
+| Insertion Sort | 44.739 μs (ord) | 44.862 μs (rand) | 45.083 μs (rev)  |         51 |
+| Shell Sort     | 214.51 μs (rev) | 218.90 μs (ord)  | 227.11 μs (rand) |         44 |
+| Merge Sort     | 296.56 μs (ord) | 303.35 μs (rev)  | 310.62 μs (rand) |         79 |
+| Heap Sort      | 506.17 μs (rev) | 511.53 μs (rand) | 527.11 μs (ord)  |        195 |
+\\
+| Sort      |    Int |   Float |   String |   Card |
+|-----------+--------+---------+----------+--------|
+| Bubble    | 343.21 |  325.13 |   355.57 | 1103.9 |
+| Selection | 347.14 |  330.01 |   376.69 | 1086.2 |
+| Insertion | 15.223 |  15.168 |   18.265 | 44.862 |
+| Shell     | 110.09 |  97.088 |   104.29 |  218.9 |
+| Merge     | 249.86 |  243.63 |   257.72 | 303.35 |
+| Heap      | 216.09 |  212.38 |   220.54 | 511.53 |
