@@ -166,14 +166,22 @@ def collect_distances():
             # print(distances[i])
     print(closest_indexes)
     fread.close()
-    fread2 = open('better-candidates.txt','r')
-    # fwrite = open('newer-codes.txt', 'w')
-    fwrite = open('even-better-candidates.txt', 'w')
-    for l, line in enumerate(fread2):
+    fread = open('new-codes.txt','r')
+    fwrite = open('newer-codes.txt', 'w')
+    for l, line in enumerate(fread):
         if l in closest_indexes:
             print(line, end='', file=fwrite)
-    fread2.close()
+    fread.close()
     fwrite.close()
+
+    fread2 = open('better-candidates.txt','r')
+    fwrite2 = open('even-better-candidates.txt', 'w')
+    for l, line in enumerate(fread2):
+        if l in closest_indexes:
+            print(line, end='', file=fwrite2)
+    
+    fread2.close()
+    fwrite2.close()
 
 def trim_more_words():
     new_words = filtered_words[:]
@@ -191,19 +199,18 @@ def trim_more_words():
             new_words.remove(w)
     # print(bad_words)
     return new_words, bad_words
-   
+
 
 
 
 filtered_words, bad_words = remove_words()
 print(bad_words)
-# trim_candidates()
-# generate_codes()
-# collect_distances()
+trim_candidates()
+generate_codes()
+collect_distances()
 print(len(all_words), len(filtered_words))
 
 narrow_results()
 filtered_words, bad_words = trim_more_words()
 print(bad_words)
 print(len(all_words), len(filtered_words))
-
