@@ -113,8 +113,9 @@ def narrow_results():
     f = open('newer-codes.txt', 'r')
     for i, line in enumerate(f):
         # print(line, matches)
-        # if line is correct_query_string:
-            # lines += [i]
+        if line == correct_query_string+'\n':
+            print(line, correct_query_string+'\n')
+            lines += [i]
         for m in matches:
             if line == m:
                 lines += [i]
@@ -174,13 +175,35 @@ def collect_distances():
     fread2.close()
     fwrite.close()
 
+def trim_more_words():
+    new_words = filtered_words[:]
+    collected_words = []
+    bad_words = []
+    fin = open('top-3-candidates.txt', 'r')
+    for i, line in enumerate(fin):
+        line_clean = [str(s) for s in line.split()]
+        for j, word in enumerate(line_clean):
+            if word not in collected_words:
+                collected_words += [word]
+    for k, w in enumerate(filtered_words):
+        if w not in collected_words:
+            bad_words += [w]
+            new_words.remove(w)
+    # print(bad_words)
+    return new_words, bad_words
+   
 
 
 
-# filtered_words, bad_words = remove_words()
+filtered_words, bad_words = remove_words()
+print(bad_words)
 # trim_candidates()
 # generate_codes()
 # collect_distances()
-# print(len(all_words), len(filtered_words))
-closest_matches = narrow_results()
-print(closest_matches, len(closest_matches))
+print(len(all_words), len(filtered_words))
+
+narrow_results()
+filtered_words, bad_words = trim_more_words()
+print(bad_words)
+print(len(all_words), len(filtered_words))
+
