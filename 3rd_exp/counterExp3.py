@@ -43,7 +43,7 @@ all_words = ["digit",
 
 words_that_cant_start = ['or','and']
 required_words = ['look', 'any', 'just', 'numbers', 'be', 'digit']
-bad_words = []
+known_bad_words = ['alone','half', 'long', 'third', 'inside']
 
 def calc_line_query_string(line):
     line_clean = [str(s) for s in line.split()]
@@ -124,7 +124,7 @@ def narrow_results():
 def remove_words():
     new_words = all_words[:]
     bad_letters = []
-    bad_words = []
+    bad_words = known_bad_words[:]
     alphabet = 'abcdefghijklmnopqrstuvwxyz'
     for i, freq in enumerate(correct_query_string):
         if freq == str(0):
@@ -151,7 +151,7 @@ def collect_distances():
     for i, dist in enumerate(distances):
         if dist < 20:
             closest_indexes += [i]
-    print(closest_indexes)
+   # print(closest_indexes)
     fread.close()
     fread = open('new-codes.txt','r')
     fwrite = open('newer-codes.txt', 'w')
@@ -173,7 +173,7 @@ def collect_distances():
 def trim_more_words():
     new_words = filtered_words[:]
     collected_words = []
-    bad_words = []
+    bad_words = known_bad_words[:]
     fin = open('top-3-candidates.txt', 'r')
     for i, line in enumerate(fin):
         line_clean = [str(s) for s in line.split()]
@@ -186,16 +186,26 @@ def trim_more_words():
             new_words.remove(w)
     return new_words, bad_words
 
-
+def update_bad_words(bad_words):
+    temp = known_bad_words[:]
+    for word in bad_words:
+        if word not in known_bad_words:
+            temp += [word]
+    return temp
 
 
 filtered_words, bad_words = remove_words()
 print(len(all_words), len(filtered_words))
-print(bad_words)
+known_bad_words = update_bad_words(bad_words)
+print(known_bad_words)
+
 trim_candidates()
 generate_codes()
 collect_distances()
 narrow_results()
+
 filtered_words, bad_words = trim_more_words()
-print(bad_words)
+known_bad_words = update_bad_words(bad_words)
+print(known_bad_words)
 print(len(all_words), len(filtered_words))
+print(filtered_words)
