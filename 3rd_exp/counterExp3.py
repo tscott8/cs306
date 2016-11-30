@@ -22,3 +22,6 @@ for line in fin:
     if len(qstring) < 27:
         print(qstring, end='\n', file=fout)
 # for line in text_file
+
+
+correct_query_string = '8202721241112883084A200010'
