@@ -42,6 +42,7 @@ all_words = ["digit",
              "the"]
 
 words_that_cant_start = ['or','and']
+required_words = ['look', 'any', 'just', 'numbers', 'be', 'digit']
 bad_words = []
 
 def calc_line_query_string(line):
@@ -72,8 +73,11 @@ def get_hex(num):
 def check_line_rules(line):
     line_clean = [str(s) for s in line.split()]
 
-    if line_clean[0] in words_that_cant_start:
-        return False
+#    if line_clean[0] in words_that_cant_start:
+#        return False
+    for req in required_words:
+        if req not in line_clean:
+            return False
     for word in line_clean:
         if word in bad_words:
             # print(word)
