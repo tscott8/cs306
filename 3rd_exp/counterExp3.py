@@ -47,22 +47,18 @@ bad_words = []
 
 def calc_line_query_string(line):
     line_clean = [str(s) for s in line.split()]
-    # print(line_clean)
     alphabet = 'abcdefghijklmnopqrstuvwxyz'
     count = [0]*26
     for i, word in enumerate(line_clean):
         for j, letter in enumerate(word):
             index = alphabet.index(letter)
-            # print(count[index])
             count[index] += 1
-    # print(count)
     string_num = ""
     for number in count:
         if number > 9:
             string_num += get_hex(number)
         else:
             string_num += str(number)
-    # print(string_num)
     return string_num
 
 def get_hex(num):
@@ -80,7 +76,6 @@ def check_line_rules(line):
             return False
     for word in line_clean:
         if word in bad_words:
-            # print(word)
             return False
     return True
 
@@ -97,8 +92,6 @@ def trim_candidates():
 def generate_codes():
     fin = open('better-candidates.txt', 'r')
     fout = open('new-codes.txt', 'w')
-
-    # text_file = f.read()
     for line in fin:
         qstring = calc_line_query_string(line)
         if len(qstring) < 27:
@@ -111,12 +104,8 @@ def narrow_results():
     lines = []
     matches = diff.get_close_matches(correct_query_string, f)
     f.close()
-    # for j, match in enumerate(matches):
-    #     matches[j] = match.replace('\n','')
-    # print (matches)
     f = open('newer-codes.txt', 'r')
     for i, line in enumerate(f):
-        # print(line, matches)
         if line == correct_query_string+'\n':
             print(line, correct_query_string+'\n')
             lines += [i]
@@ -145,29 +134,23 @@ def remove_words():
             if letter in word:
                 bad_words += [word]
                 new_words.remove(word)
-    # print(bad_words)
     return new_words, bad_words
 
 def lcd_query(num_string):
     url = 'https://firstthreeodds.org/run/app?lcdq+'
     query_string = url + num_string
     r = requests.post(query_string)
-    # print(r.text)
     return int(r.text)
-    # return random.randint(0,1000)
 
 def collect_distances():
     fread = open('new-codes.txt','r')
     distances = []
     for j, line in enumerate(fread):
         distances += [lcd_query(line)]
-        # if j > len(fread)//4:
-        #     break
     closest_indexes = []
     for i, dist in enumerate(distances):
         if dist < 20:
             closest_indexes += [i]
-            # print(distances[i])
     print(closest_indexes)
     fread.close()
     fread = open('new-codes.txt','r')
@@ -201,19 +184,17 @@ def trim_more_words():
         if w not in collected_words:
             bad_words += [w]
             new_words.remove(w)
-    # print(bad_words)
     return new_words, bad_words
 
 
 
 
 filtered_words, bad_words = remove_words()
+print(len(all_words), len(filtered_words))
 print(bad_words)
 trim_candidates()
 generate_codes()
 collect_distances()
-print(len(all_words), len(filtered_words))
-
 narrow_results()
 filtered_words, bad_words = trim_more_words()
 print(bad_words)
