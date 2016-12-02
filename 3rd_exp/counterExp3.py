@@ -3,51 +3,33 @@ import requests
 import difflib as diff
 
 # shell_command_format_string = 'curl -s https://firstthreeodds.org/run/app?lcdq+
+alphabet = 'abcdefghijklmnopqrstuvwxyz'
 correct_query_string = '8202721241112883084A200010'
-all_words = ["digit",
-             "is",
-             "be",
-             "perhaps",
-             "to",
-             "just",
-             "a",
-             "product",
-             "two",
-             "any",
-             "numbers",
-             "or",
-             "pattern",
-             "pieces",
-             "first",
-             "and",
-             "five",
-             "reason",
-             "appear",
-             "on",
-             "inside",
-             "short",
-             "long",
-             "third",
-             "look",
-             "it",
-             "ten",
-             "half",
-             "that",
-             "for",
-             "alone",
-             "of",
-             "in",
-             "chunks",
-             "random",
-             "the"]
-
-words_that_cant_start = ['or','and']
-required_words = ['look', 'any', 'just', 'numbers', 'be', 'digit']
+all_words = ["digit", "is", "be", "perhaps", "to", "just", "a", "product", "two",
+             "any", "numbers", "or", "pattern", "pieces", "first", "and", "five",
+             "reason", "appear", "on", "inside", "short", "long", "third", "look",
+             "it", "ten", "half", "that", "for", "alone", "of", "in", "chunks",
+             "random", "the"]
+required_words = ['look', 'any', 'just', 'numbers', 'be', 'digit', 'random',
+                  'a', 'for', 'appear', 'reason',]
 known_bad_words = ['alone','half', 'long', 'third', 'inside']
+
+shems_guess = ['look', 'any', 'just', 'numbers', 'be', 'digit', 'random',
+               'pattern', 'reason', 'on', 'ten', 'in', 'appear', 'the', 'a',
+               'that', 'first', 'for', 'to', 'or']
+
+marcs_guess = ['any','just','look','digit','numbers', 'be', 'random','the',
+               'appear', 'pattern', 'that', 'first', 'reason', 'on', 'ten',
+               'in', 'for', 'a', 'or', 'to']
+shems_guess.sort()
+marcs_guess.sort()
+print('MANUAL CALCULATION:')
+print('SHEM: ',' '.join(shems_guess))
+print('MARC: ',' '.join(marcs_guess))
 
 def calc_line_query_string(line):
     line_clean = [str(s) for s in line.split()]
-    alphabet = 'abcdefghijklmnopqrstuvwxyz'
+    # alphabet = 'abcdefghijklmnopqrstuvwxyz'
     count = [0]*26
     for i, word in enumerate(line_clean):
         for j, letter in enumerate(word):
@@ -62,9 +44,9 @@ def calc_line_query_string(line):
     return string_num
 
 def get_hex(num):
-    alphabet = 'abcdefghijklmnopqrstuvwxyz'
-    alphabet = alphabet.upper()
-    return alphabet[num - 10]
+    # alphabet = 'abcdefghijklmnopqrstuvwxyz'
+    alphabet_caps = alphabet.upper()
+    return alphabet_caps[num - 10]
 
 def check_line_rules(line):
     line_clean = [str(s) for s in line.split()]
@@ -124,8 +106,8 @@ def narrow_results():
 def remove_words():
     new_words = all_words[:]
     bad_letters = []
-    bad_words = known_bad_words[:]
-    alphabet = 'abcdefghijklmnopqrstuvwxyz'
+    bad_words = []
+    # alphabet = 'abcdefghijklmnopqrstuvwxyz'
     for i, freq in enumerate(correct_query_string):
         if freq == str(0):
             bad_letters  += [alphabet[i]]
@@ -149,7 +131,7 @@ def collect_distances():
         distances += [lcd_query(line)]
     closest_indexes = []
     for i, dist in enumerate(distances):
-        if dist < 20:
+        if dist < 25:
             closest_indexes += [i]
    # print(closest_indexes)
     fread.close()
@@ -166,36 +148,51 @@ def collect_distances():
     for l, line in enumerate(fread2):
         if l in closest_indexes:
             print(line, end='', file=fwrite2)
-    
+
     fread2.close()
     fwrite2.close()
 
 def trim_more_words():
     new_words = filtered_words[:]
     collected_words = []
-    bad_words = known_bad_words[:]
+    bad_words = []
     fin = open('top-3-candidates.txt', 'r')
     for i, line in enumerate(fin):
         line_clean = [str(s) for s in line.split()]
         for j, word in enumerate(line_clean):
-            if word not in collected_words:
-                collected_words += [word]
-    for k, w in enumerate(filtered_words):
-        if w not in collected_words:
-            bad_words += [w]
-            new_words.remove(w)
+#            if word not in collected_words:
+            collected_words += [word]
+    fin.close()
+    collected_words.sort()
+    counts = []
+    for c, cw in enumerate(collected_words):
+        tup = [cw, collected_words.count(cw)]
+        if tup not in counts:
+            counts += [tup]
+    print(counts)
+    for count in counts:
+        if count[1] <= 1 and count[0] not in required_words:
+            bad_words += [count[0]]
+            new_words.remove(count[0])
+#    for k, w in enumerate(filtered_words):
+#        if w not in collected_words:
+#            bad_words += [w]
+#            new_words.remove(w)
+
     return new_words, bad_words
 
 def update_bad_words(bad_words):
     temp = known_bad_words[:]
     for word in bad_words:
-        if word not in known_bad_words:
+        if word not in known_bad_words and word not in required_words:
             temp += [word]
     return temp
 
 
+print('COMP CALCULATION:')
+
 filtered_words, bad_words = remove_words()
-print(len(all_words), len(filtered_words))
+#print(len(all_words), len(filtered_words))
 known_bad_words = update_bad_words(bad_words)
 print(known_bad_words)
 
@@ -205,7 +202,12 @@ collect_distances()
 narrow_results()
 
 filtered_words, bad_words = trim_more_words()
+
+#print(len(all_words), len(filtered_words))
 known_bad_words = update_bad_words(bad_words)
 print(known_bad_words)
+filtered_words.sort()
+final_line = ' '.join(filtered_words)
+print('TYLER: ', final_line)
 print(len(all_words), len(filtered_words))
-print(filtered_words)
+print(calc_line_query_string(final_line))
