@@ -116,7 +116,7 @@ def lcd_query(num_string):
 #        for j, word in enumerate(line_clean):
 #           if word not in collected_words:
 #               collected_words += [word]
-#        
+#
 #    for k, w in enumerate(filtered_words):
 #        if w not in collected_words:
 #            bad_words += [w]
@@ -136,7 +136,7 @@ def trim_more_words():
     fin.close()
     collected_words.sort()
     while len(filtered_words) != 20:
-        
+
         counts = []
         vals = []
         for c, cw in enumerate(collected_words):
@@ -183,7 +183,7 @@ def update_good_words(good_words):
         for word in good_words:
             if word not in required_words and word not in known_bad_words:
                 required_words.append(word)
-                
+
 def remove_words(words_to_remove):
     for word in words_to_remove:
         if word not in required_words and word in filtered_words:

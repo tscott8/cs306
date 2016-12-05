@@ -1,0 +1,4 @@
+401463354401552	bnipsgtrkcadlqojhefm	 q0
+401055876449552	bnipscgkrtadlqojhefm	 q1
+401463354400832	bnipsgtrkcadloqjhefm	 q2
+401463354401468	bnipsgtrkcadlqoefhjm	 q3
