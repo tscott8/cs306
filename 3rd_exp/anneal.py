@@ -8,6 +8,7 @@ from itertools import permutations as perm
 import random as rand
 import numpy as np
 import requests
+
 orig_code = "abcdefghijklmnopqrst"
 #quads = list(map(''.join, zip(*[iter(orig_code)]*(len(orig_code)//5))))
 
@@ -122,9 +123,10 @@ def test_quad(quad, index):
 # translate_file('perms.txt')
 #guess ='for any random ten numbers just to look in the first digit be pattern on that or appear a reason'
 
-#guess = 'any pattern just reason the for appear numbers that to be random on first ten digit look in a  or'
-#new_code = encode(guess)
-print()
+guess = 'any pattern just look on or in the first ten digit numbers that appear to be random for a reason'
+new_code = encode(guess)
+print(new_code)
+print(query(new_code))
 #new_code = encode(guess)
 #new_code = 'bnpistgckrdqalojhefm'
 #new_code = 'bnipstgckrdqalojhefm'
@@ -135,14 +137,17 @@ print()
 #new_code = 'bnipsgtrkcdqalojhefm'
 #new_code = 'bnipsgtrkcadlqojhefm'
 #new_code = 'bnipsgtrkcadlqoefjmh'
-new_code = 'bnipsgckrtdqalojhefm'
-print(decode(new_code))
-quads = list(map(''.join, zip(*[iter(new_code)]*(len(new_code)//2))))
-test_quad(quads[0],0)
-#quads = list(map(''.join, zip(*[iter(new_code)]*(len(new_code)//4))))
-#r = test_quad(quads[3], 3)
+#new_code = 'bnipsgckrtdqalojhefm'
+#new_code = 'bnipgkcrtsdqalojhefm'
+#print(decode(new_code))
+#quads = list(map(''.join, zip(*[iter(new_code)]*(len(new_code)//2))))
+#r = test_quad(quads[1],1)
 #print(r)
-
+new_code = 'bnijlfhmsqekrctdogap'
+print(query(new_code))
+print(decode(new_code))
+#quads = list(map(''.join, zip(*[iter(new_code)]*(len(new_code)//4))))
+##
 #stuff = []
 #fout = open('results1.txt', 'w')
 #for i,q in enumerate(quads):
