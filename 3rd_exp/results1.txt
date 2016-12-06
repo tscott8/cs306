@@ -1,0 +1,4 @@
+289220732387506	bnijlmhsfqekrctdogap	 q0
+288863560489906	bnijlfhmqsekrctdogap	 q1
+289220731568866	bnijlmhsfqcekrtdogap	 q2
+289220732387468	bnijlmhsfqekrctadgop	 q3
