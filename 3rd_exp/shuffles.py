@@ -22,10 +22,10 @@ def rotate(strg,n):
     return strg[n:] + strg[:n]
     
 def paired_shuffle(code):
-    code=rotate(code,1)
-    n = 2
     if type(code) is not str:
         code = ''.join(code)
+    code=rotate(code,1)
+    n = 2
     code = [code[i:i+n] for i in range(0, len(code), n)]
     rand.shuffle(code)
     return (''.join(code))
