@@ -17,7 +17,12 @@ def riffle_shuffle(code):
         deck.insert(insert_index, item)
     return (''.join(deck))
 
+    
+def rotate(strg,n):
+    return strg[n:] + strg[:n]
+    
 def paired_shuffle(code):
+    code=rotate(code,1)
     n = 2
     if type(code) is not str:
         code = ''.join(code)
@@ -25,13 +30,21 @@ def paired_shuffle(code):
     rand.shuffle(code)
     return (''.join(code))
     
-    
 def rif_n(code, n):
     while n > 0:
         code = riffle_shuffle(code)
         n -= 1
     return code
+
+def pair_n(code, n):
+    while n > 0:
+        code = paired_shuffle(code)
+        n -= 1
+    return code
 shuf = rif_n('abcdefghijklmnopqrst', rand.randint(1,10))
+print(shuf)
+
+shuf = pair_n('abcdefghijklmnopqrst', rand.randint(1,10))
 print(shuf)
 #print(riffle_shuffle('abcdefg'))
 #print(paired_shuffle('abcdefg'))
