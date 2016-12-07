@@ -62,15 +62,28 @@ def generate_codes():
     fin.close()
     fout.close()
 
-def cmp_codes(c1, c2):
-    s = diff.SequenceMatcher(a=c1, b=c2)
-    return s.ratio()
-
-def get_top_codes():
-    fin = open('new-codes.txt', 'r')
-    code_list = []
-    for line in fin:
-        code_list += [line.replace('\n', '')]
+def narrow_results():
+    f = open('newer-codes.txt', 'r')
+    lines = []
+    matches = diff.get_close_matches(correct_query_string, f)
+    f.close()
+    # for j, match in enumerate(matches):
+    #     matches[j] = match.replace('\n','')
+    # print (matches)
+    f = open('newer-codes.txt', 'r')
+    for i, line in enumerate(f):
+        # print(line, matches)
+        # if line is correct_query_string:
+            # lines += [i]
+        for m in matches:
+            if line == m:
+                lines += [i]
+    f.close()
+    fin = open('even-better-candidates.txt','r')
+    fout = open('top-3-candidates.txt','w')
+    for j, line in enumerate(fin):
+        if j in lines:
+            print(line, end='', file=fout)
     fin.close()
     top_codes = []
     fout = open('newer-codes.txt', 'w')
@@ -122,6 +135,8 @@ def lcd_query(num_string):
 #            bad_words += [w]
 #    return bad_words
 
+<<<<<<< HEAD
+=======
 def trim_more_words():
     print('TRIM MORE!')
     collected_words = []
@@ -204,12 +219,22 @@ known_bad_words = ['alone','half', 'long', 'third', 'inside', 'and','is',
 shems_guess = ['look', 'any', 'just', 'numbers', 'be', 'digit', 'random',
                'pattern', 'reason', 'on', 'ten', 'in', 'appear', 'the', 'a',
                'that', 'first', 'for', 'to', 'or']
+>>>>>>> 3b1f28e3b98b2352340812df346860a8fea2416c
 
 marcs_guess = ['any','just','look','digit','numbers', 'be', 'random','the',
                'appear', 'pattern', 'that', 'first', 'reason', 'on', 'ten',
                'in', 'for', 'a', 'or', 'to']
 
 
+<<<<<<< HEAD
+# filtered_words, bad_words = remove_words()
+# trim_candidates()
+# generate_codes()
+# collect_distances()
+# print(len(all_words), len(filtered_words))
+closest_matches = narrow_results()
+print(closest_matches, len(closest_matches))
+=======
 
 
 all_words = unique_words()
@@ -242,3 +267,4 @@ print(final_code)
 print(len(all_words), len(filtered_words))
 
 print(cmp_codes(final_code, correct_query_string))
+>>>>>>> 3b1f28e3b98b2352340812df346860a8fea2416c
