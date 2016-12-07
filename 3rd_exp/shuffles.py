@@ -25,5 +25,11 @@ def paired_shuffle(code):
     rand.shuffle(code)
     return (''.join(code))
     
+    
+def rif_n(code, n):
+    while n > 0:
+        code = riffle_shuffle(code)
+        n -= 1
+    
 print(riffle_shuffle('abcdefg'))
 print(paired_shuffle('abcdefg'))
