@@ -30,6 +30,8 @@ def rif_n(code, n):
     while n > 0:
         code = riffle_shuffle(code)
         n -= 1
-    
-print(riffle_shuffle('abcdefg'))
-print(paired_shuffle('abcdefg'))
+    return code
+shuf = rif_n('abcdefghijklmnopqrst', rand.randint(1,10))
+print(shuf)
+#print(riffle_shuffle('abcdefg'))
+#print(paired_shuffle('abcdefg'))
