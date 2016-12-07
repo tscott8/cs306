@@ -8,48 +8,11 @@ from itertools import permutations as perm
 import random as rand
 import numpy as np
 import requests
-
+import difflib as diff
+correct_code = 'bnhmpgsqekrlafjictdo'
 orig_code = "abcdefghijklmnopqrst"
-#quads = list(map(''.join, zip(*[iter(orig_code)]*(len(orig_code)//5))))
-
 unordered_words = "a any appear be digit first for in just look numbers on or pattern random reason ten that the to"
 uw_list =unordered_words.split()
-# uw_zipped = ' '.join(uw_list)
-
-# class Sentence():
-#     def __init__(self):
-#         self.unordered_words = "a any appear be digit first for in just look numbers on or pattern random reason ten that the to"
-#         self.verbs = 'appear be look numbers pattern'.split()
-#         self.adjs = 'first in just random ten'.split()
-#         self.adverbs = 'any in just on that to'
-#         self.nouns = 'digit in look numbers or pattern reason ten'.split()
-#         self.pronouns = 'any that'.split()
-#         self.determiners = 'a any that the'.split()
-#         self.conjunctions = 'for or that'.split()
-#         self.prepositions = 'for in on to'.split()
-#         self.subjects = self.build_subjects()
-#         self.predicates = self.build_predicates()
-#         self.clauses = self.build_clauses()
-#         self.phrases = self.build_phrases()
-#         self.modifiers = self.build_modifiers()
-
-#     def build_subjects(self):
-#         pass
-#         # must be noun or noun_phrase
-#     def build_predicates(self):
-#         pass
-#     def build_clauses(self):
-#         pass
-#     def build_subjects(self):
-#         pass
-#     def build_phrases(self):
-#         pass
-#     def build_modifiers(self):
-#         pass
-#     def check_grammar(self, sentence):
-#         return True
-
-
 def check_grammar(code):
     # if decode(code)[0] in wcs_list:
     #     return False
@@ -114,38 +77,100 @@ def test_quad(quad, index):
         collection += [result]
     fout.close()
     return collection.index(min(collection))
-    
-# new_code = shuffle_code(orig_code)
-# while check_grammar(new_code) is False:
-#     new_code = shuffle_code(short_code)
-# print(decode(new_code))
-# gen_perms(new_code)
-# translate_file('perms.txt')
-#guess ='for any random ten numbers just to look in the first digit be pattern on that or appear a reason'
 
-guess = 'any pattern just look on or in the first ten digit numbers that appear to be random for a reason'
-new_code = encode(guess)
-print(new_code)
-print(query(new_code))
-#new_code = encode(guess)
-#new_code = 'bnpistgckrdqalojhefm'
-#new_code = 'bnipstgckrdqalojhefm'
-#new_code = 'bnipsgtckrdqalojhefm'
-#new_code = 'bnipsgctkrdqalojhefm'
-#new_code = 'bnipsgcktrdqalojhefm'
-#new_code = 'bnipsgckrtdqalojhefm'
-#new_code = 'bnipsgtrkcdqalojhefm'
-#new_code = 'bnipsgtrkcadlqojhefm'
-#new_code = 'bnipsgtrkcadlqoefjmh'
-#new_code = 'bnipsgckrtdqalojhefm'
-#new_code = 'bnipgkcrtsdqalojhefm'
+def meat_chunks():
+    chunks = ['any pattern in', 
+              'a first look',
+              'ten digit numbers', 
+              'be random', 
+              'just appear to', 
+              'or reason for',
+              'on', 'that', 'the'] 
+    perms = perm(chunks)
+    fout = open('meatchunks.txt', 'w')
+    for p in perms:
+        pcode = encode(' '.join(p))
+        if pcode[0] == 'b' and pcode[len(pcode)-1] == 'o':            
+            print(pcode, end='\n', file=fout)
+    fout.close()
+
+def compute_meat():
+    fin = open('meatchunks.txt', 'r')
+    fout = open('chunkiness.txt','w')
+    collection = []
+    for i,line in enumerate(fin):
+  #      print(line.replace('\n', ''))
+        result = query(line.replace('\n', ''))
+        print(str(result) + '\t' + line, end='\n', file=fout)
+        collection += [result]
+    fin.close()
+    fout.close()
+    r = collection.index(min(collection))
+    fin2 = open('chunkiness.txt', 'r')
+    fout2 = open('result2.txt', 'r')
+    for j, line in enumerate(fin2):
+        if r == j:
+          print(line.replace('\n','')+'\t q'+str(j),end='\n',file=fout2)
+    fin2.close()
+    fout2.close()
+    
+def riffle(deck):
+    '''
+    Shuffle a list like a deck of cards.
+    i.e. given a list, split with second set have the extra if len is odd
+    and then interleave, second deck's first item after first deck's first item
+    and so on. Thus:
+    riffle([1,2,3,4,5,6,7])
+    returns [1, 4, 2, 5, 3, 6, 7]
+    '''
+    cut = len(deck)//2 # floor division in python 3, in 2 use /
+    deck, second_deck = deck[:cut], deck[cut:]
+    for index, item in enumerate(second_deck):
+        insert_index = index*2 + 1
+        deck.insert(insert_index, item)
+    return deck
+    
+def riffle_shuffle(code):
+    n=1
+    code = [code[i:i+n] for i in range(0, len(code), n)]
+    cut = len(code)//2 # floor division in python 3, in 2 use /
+    deck, second_deck = code[:cut], code[cut:]
+    print(deck, second_deck)
+    for index, item in enumerate(second_deck):
+        insert_index = index*2 + 1
+        deck.insert(insert_index, item)
+    return deck
+
+def paired_shuffle(code):
+    n = 2
+    if type(code) is not str:
+        code = ''.join(code)
+    code = [code[i:i+n] for i in range(0, len(code), n)]
+    rand.shuffle(code)
+    return (''.join(code))
+
+print(riffle_shuffle('abcdefg'))
+print(paired_shuffle('abcdefg'))
+
+#compute perms
+#for each perm compute heat, if heat goes up stop, return code
+#repeat with new code
+#meat_chunks()
+#compute_meat()
+#new_code = 'bnhqekrctjogapidlmfs'
+#new_code = 'bnhmpgsqekrlafjictdo'
+#print(query(new_code))
 #print(decode(new_code))
+#guess = 'any pattern just be on or in the first ten digit numbers that appear to look random for a reason'
+#guess = 'any pattern just be for reason look random on or in the a first ten digit numbers that appear to'
+#new_code = encode(guess)
+#print(new_code)
+#print(query(new_code))
+
 #quads = list(map(''.join, zip(*[iter(new_code)]*(len(new_code)//2))))
 #r = test_quad(quads[1],1)
 #print(r)
-new_code = 'bnijlfhmsqekrctdogap'
-print(query(new_code))
-print(decode(new_code))
+
 #quads = list(map(''.join, zip(*[iter(new_code)]*(len(new_code)//4))))
 ##
 #stuff = []

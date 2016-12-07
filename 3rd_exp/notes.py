@@ -20,8 +20,6 @@ starters = 'any, the, a, just, look, in'
 
 guesses = [
     'Any reason that the first ten ']
-
-
 # "be digit first for in just look numbers on or pattern random reason ten that the to a any appear" defghijklmnopqrstabc
 # any random for reason that numbers just look on the first ten digit in a pattern to appear or be
 # any reason that random numbers look on or to be a pattern appear for just the first ten digit in       
@@ -30,3 +28,5 @@ guesses = [
 # 'ten digit'
 # any pattern the first ten digit numbers that appear to be random for a reason just look in on or 
 # any pattern just look on or in the first ten digit numbers that appear to be random for a reason
+184600515647050
+289220732387506
