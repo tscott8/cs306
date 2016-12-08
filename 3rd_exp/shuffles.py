@@ -19,6 +19,7 @@ def riffle_shuffle(code):
 
     
 def rotate(strg,n):
+    n = n % len(strg)
     return strg[n:] + strg[:n]
     
 def paired_shuffle(code, n):
