@@ -21,14 +21,16 @@ def riffle_shuffle(code):
 def rotate(strg,n):
     return strg[n:] + strg[:n]
     
-def paired_shuffle(code):
+def paired_shuffle(code, n):
     if type(code) is not str:
         code = ''.join(code)
+    code_saved = code[n:]
+    code = code[:n]
     code=rotate(code,1)
     n = 2
     code = [code[i:i+n] for i in range(0, len(code), n)]
     rand.shuffle(code)
-    return (''.join(code))
+    return (code_saved+''.join(code))
     
 def rif_n(code, n):
     while n > 0:
@@ -38,9 +40,10 @@ def rif_n(code, n):
 
 def pair_n(code, n):
     while n > 0:
-        code = paired_shuffle(code)
+        code = paired_shuffle(code,n)
         n -= 1
     return code
+
 shuf = rif_n('abcdefghijklmnopqrst', rand.randint(1,10))
 print(shuf)
 
