@@ -22,16 +22,12 @@ def rotate(strg,n):
     n = n % len(strg)
     return strg[n:] + strg[:n]
     
-def paired_shuffle(code, n):
+def paired_shuffle(code,n):
     if type(code) is not str:
         code = ''.join(code)
-    code_saved = code[n:]
-    code = code[:n]
-    code=rotate(code,1)
-    n = 2
-    code = [code[i:i+n] for i in range(0, len(code), n)]
+    code = [code[i:i+2] for i in range(0, len(code), 2)]
     rand.shuffle(code)
-    return (code_saved+''.join(code))
+    return ''.join(code)
     
 def rif_n(code, n):
     while n > 0:
@@ -41,14 +37,32 @@ def rif_n(code, n):
 
 def pair_n(code, n):
     while n > 0:
-        code = paired_shuffle(code,n)
+        code=rotate(code,1)
+        code_saved = code[:n]
+#        print(code_saved, len(code_saved))
+        code_remain = code[n:]
+        code = code_saved + paired_shuffle(code_remain,n)
         n -= 1
     return code
 
-shuf = rif_n('abcdefghijklmnopqrst', rand.randint(1,10))
-print(shuf)
+def truffle_shuffle(code, completed=[]):
+    start_index = rand.randint(0, len(code))
+    letter = code[start_index]
+    if letter not in completed:
+        code = rotate(i)
+        
+    # start at random index
+    # if letter not in completed list
+    #   shift until letter in position with highest score
+    #   add that letter to the list of completed letters
+    # recurse with the new string
+    
+    
+#shuf = rif_n('abcdefghijklmnopqrst', rand.randint(1,10))
+#print(shuf)
 
-shuf = pair_n('abcdefghijklmnopqrst', rand.randint(1,10))
-print(shuf)
+for i in range(10000):
+    shuf = pair_n('abcdefghijklmnopqrst', rand.randint(0,19))
+    print(shuf)
 #print(riffle_shuffle('abcdefg'))
 #print(paired_shuffle('abcdefg'))
