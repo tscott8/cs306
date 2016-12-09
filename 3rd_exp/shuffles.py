@@ -94,13 +94,13 @@ def shuffle_n_elements(code, n):
 
 def scaled_shuffle(code, energy):
     energy = translate_energy(energy)
-    code = shuffle_n_elements(code, 19*energy)
+    code = shuffle_n_elements(code, math.floor(19*energy))
     return code
 
 string = 'abcdefghijklmnopqrst'
-print(shuffle_n_elements(string, rand.randint(0, 19)))
-#for i in range(100, 0, -1):
-#    print(fish_yates(string, i))
+# print(shuffle_n_elements(string, rand.randint(0, 19)))
+for i in range(100, 0, -1):
+   print(scaled_shuffle(string, i))
 #for i in range(10000):
 #    shuf = rif_n(string, rand.randint(0,19))
 #    print(shuf)
