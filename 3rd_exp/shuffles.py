@@ -85,12 +85,10 @@ def translate_energy(energy):
 def shuffle_n_elements(code, n):
     code = [code[i:i+1] for i in range(0, len(code), 1)]
     start_index = rand.randint(0, n)
-    code_split = [''.join(code[:start_index:]), ''.join(code[start_index:])]
-    print(code_split)
-    code_split[1] = riffle_shuffle(code_split[1])
-    print(code_split)
-    code = code_split[0]+code_split[1]
-    return code
+    code_split = [code[:start_index], code[start_index:]]
+    rand.shuffle(code_split[0])
+    rand.shuffle(code_split[1])
+    return ''.join(code_split[0])+''.join(code_split[1])
 
 def scaled_shuffle(code, energy):
     energy = translate_energy(energy)
