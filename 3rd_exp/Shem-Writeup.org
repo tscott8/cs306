@@ -3,7 +3,8 @@
 #+EMAIL:  rick.neff@gmail.com
 #+LANGUAGE:  en
 #+OPTIONS:   H:4 num:t toc:nil \n:nil @:t ::t |:t ^:t *:t TeX:t LaTeX:t
-#+STARTUP:   showeverything
+#+STARTUP:   showeverythingNOT
+#+COLLABORATORS: Tyler Scott, Marc Hartley
 
 * To Boldly Go ...
 
@@ -12,9 +13,32 @@
   searching through a sentential solution space, combinatorially explosive, vast
   in its extent. This invitation to exploration is codenamed [[file:vastness.org][vastness]].
 
+* Report
+
+** Introduction
+The goal of this exploration was to use the knowledge we have gained over the semester
+to solve Problem 3 in our first Exploration. This problme was broken into two parts:
+[1] identifying the words that make up the question, and [2] figuring out the correct
+configuration of these words.
+
+** Part 1
+
+
 * Code
 
-#+BEGIN_SRC emacs-lisp :tangle vastness-setup.el
+#+BEGIN_SRC elisp
+; Start with a string of zeros 26 long (i.e. 0000000000000000000000000)
+; for i in lenght of string
+;    set currentBest (lcd-query string)
+;    set attempt 0
+;    while (attempt < currentBest)
+;       set temp (increment ith element in string)
+;       set attempt (lcd-query string)
+;       if (attempt < currentBest)
+;           set string temp
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle vastness-part-1-setup.el
   (require 'cl)
 
   (defun keep-only-up-to-seven-letter-words (words-filename)
@@ -110,10 +134,7 @@
 
 #+END_SRC
 
-#+RESULTS:
-: lcd-query
-
-#+BEGIN_SRC emacs-lisp :tangle yes
+#+BEGIN_SRC emacs-lisp :tangle part-1.el
 (defun generate-count-as-string (candidate)
    (interactive "r")
    (let ((response)
@@ -121,75 +142,208 @@
       (setq response (replace-regexp-in-string "\n" "" (shell-command-to-string cmdStr)))
    response))
 
-(string= (generate-count-as-string "look any just numbers be digit random pattern reason on ten in appear the a that first for to or") "8202721241112883084A200010")
-
-
-(word-size-frequencies-match "look any just numbers be digit random pattern reason on ten in appear the a that first for to or")
-
-
-(is-good-candidate-subset "look any just numbers be digit random pattern reason on ten in appear the a that first for to or")
-
 (find-a-few-good-candidates 1000)
 
+#+END_SRC
 
+#+BEGIN_SRC emacs-lisp :tangle vastness-part-2-setup.el
+  (require 'cl)
+
+  ;;
+  ;; A "state" is a permutation of the 20 words, each word encoded as one of
+  ;; the first twenty letters (a-t).
+  ;;
+  ;; Sort the 20 words in lexicographic order and then assign each a letter,
+  ;; in order from a-t.
+  ;;
+  ;; So, a state is a permutation of the string "abcdefghijklmnopqrst".
+  ;;
+  ;; Its energy is how "far" it is from the correct permutation.
+  ;;
+  ;; Lowering its energy means getting closer to the correct permutation.
+  ;;
+  ;; Use creative strategies to move-from a current state to a new state:
+  ;;
+  ;; 1) by swapping the letters at two randomly chosen positions, or
+  ;; 2) by doing the "Knuth shuffle", or
+  ;; 3) you decide.
+
+  (defun char-word-alist ()
+    (quote ((?a . "a")
+            (?b . "any")
+            (?c . "appear")
+            (?d . "be")
+            (?e . "digit")
+            (?f . "first")
+            (?g . "for")
+            (?h . "in")
+            (?i . "just")
+            (?j . "look")
+            (?k . "numbers")
+            (?l . "on")
+            (?m . "or")
+            (?n . "pattern")
+            (?o . "random")
+            (?p . "reason")
+            (?q . "ten")
+            (?r . "that")
+            (?s . "the")
+            (?t . "to")
+            )))
+
+  (defun word-string-to-perm (word-string)
+    (let ((words-as-list (split-string word-string " ")))
+      (mapconcat (lambda (x) (string (car (rassoc x (char-word-alist)))))
+                 words-as-list "")))
+
+  (defvar correct-perm "bnhmpgsqekrlafjictdo")
+
+  (defun perm-to-word-string (perm)
+    (mapconcat (lambda (x) (cdr (assoc x (char-word-alist)))) perm " "))
+
+  (defun string-to-list (str)
+    (map 'list (lambda (x) (- x ?a)) str))
+
+  (defvar correct-perm-as-list (string-to-list correct-perm))
+
+  (defun factorial (n)
+    "Calculates n!"
+    (if (< n 2) 1 (* n (factorial (1- n)))))
+
+  (defun rank (y)
+    "Calculates the lexicographical rank of a given list of n
+       numbers (a permutation)."
+    (if (zerop (length y)) 0
+      (let* ((x0 (car y))
+             (xs (cdr y)))
+        (+ (rank xs)
+           (* (loop for x in xs when (< x x0) sum 1)
+              (factorial (length xs)))))))
+
+  (defvar rank-of-correct-perm-as-list (rank correct-perm-as-list))
+
+  (defun distance (perm)
+    "Calculates the difference between the given permutation's rank
+       and the rank of the correct permutation."
+    (abs (- (rank (string-to-list perm)) rank-of-correct-perm-as-list)))
+
+  (defun energy (state)
+    "Defines a permutation's energy as its distance."
+    (distance state))
+
+  (defun random-01 ()
+    "Returns a random float between 0 and 1."
+    (/ (random most-positive-fixnum) (float most-positive-fixnum)))
+
+  (defun probability (energy new-energy temperature)
+    "Computes the probability of preferring new-energy to energy."
+    (if (< new-energy energy) ; better
+        1.0
+      (exp (- (/ (- new-energy energy) temperature))))) ; why is temperature used here?
+
+  (defun knuth-shuffle (x)
+    (if (listp x)
+        (map 'list #'identity (knuth-shuffle (apply #'vector x)))
+      (loop for i from (1- (length x)) downto 1
+            do (rotatef (aref x i) (aref x (random i))))
+      x))
+
+  (defun swap-random (perm)
+    "Swaps a random character in perm with the next one adjacent to it, wrapping from end to beginning."
+    (let* ((len (length perm))
+           (i1 (random len))
+           (i2 (% (1+ i1) len))
+           (i1letter (aref perm i1))
+           (i2letter (aref perm i2)))
+      (aset perm i1 i2letter)
+      (aset perm i2 i1letter)
+      perm))
+
+  (defun move-from (state energy)
+    (swap-n-random (copy-sequence state) energy)) ; or swap-random, or ...
+
+  (defun simulate-annealing (initial-state initial-temperature cooling-rate)
+    "Performs simulated annealing based on the above functions and
+     passed-in initial state, initial temperature and cooling rate parameters."
+    (let* ((state (copy-sequence initial-state))
+           (temperature initial-temperature)
+           (energy (energy state)) ; initial energy
+           (best-state state) ; initial best state
+           (best-energy energy) ; initial best energy
+           (iterations 0)
+           new-state new-energy)
+      ;; Loop until system has cooled
+      (while (> temperature 1)
+        (setq new-state (move-from state energy)
+              new-energy (energy new-state))
+
+        (when (> (probability energy new-energy temperature) (random-01))
+          (setq state new-state
+                energy new-energy))
+
+        (when (< new-energy best-energy)
+          (setq best-state new-state
+                best-energy new-energy))
+
+        ;; Count iterations
+        (incf iterations)
+        ;; Cool things down
+        (setq temperature (if (zerop best-energy) 1 (* temperature cooling-rate))))
+
+      ;; Report best state, its energy and the number of iterations of the while loop
+      (list best-state best-energy iterations)))
+
+  (defun try-it (&optional initial-state &optional initial-temperature &optional cooling-rate)
+    "Executes the simulate-annealing function with (possibly) default values."
+    (or initial-state (setq initial-state "abcdefghijklmnopqrst"))
+    (or initial-temperature (setq initial-temperature 100000))
+    (or cooling-rate (setq cooling-rate .999))
+    (simulate-annealing initial-state initial-temperature cooling-rate))
+
+  (defun run ()
+    (message (format "%s" (try-it nil 1000000))))
+
+(try-it nil 1000000000000 .9999)
+
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle part-2.el
 
 (defun riffle-shuffle (x)
    (let* ((response (shell-command-to-string (format "python3 riffle-shuffle.py %s" x)))
           (response (replace-regexp-in-string "\n" "" response)))
       response))
 
-(riffle-shuffle "abcdefghijklmnopqrst")
-
 (defun pair-shuffle (x temp)
    (let* ((response (shell-command-to-string (format "python3 pair-shuffle.py %s %s" x temp)))
           (response (replace-regexp-in-string "\n" "" response)))
       response))
-
-(pair-shuffle "abcdefg" 151512)
 
 (defun fish-shuffle (x temp)
    (let* ((response (shell-command-to-string (format "python3 fish.py %s %s" x temp)))
           (response (replace-regexp-in-string "\n" "" response)))
       response))
 
-(defun try-shuffle (x temp)
+(defun n-shuffle (x temp)
    (let* ((response (shell-command-to-string (format "python3 n-shuffle.py %s %s" x temp)))
           (response (replace-regexp-in-string "\n" "" response)))
       response))
 
-(try-shuffle "abcdefghijklmnopqrst" 1512352351235)
-
-(split-string "abcdefghijklmnopqrst" "" t)
-
-  (defun swap-n-random (perm temp)
-    "Swaps a random character in perm with the next one adjacent to it, wrapping from end to beginning."
-    (let ((len (length perm))
-          (i1) (i2) (i1letter) (i2letter))
-          (while (> temp 0)
-             (progn
-                   (set 'i1 (random len))
-                    (set 'i2 (% (1+ i1) len))
-                    (set 'i1letter (aref perm i1))
-                    (set 'i2letter (aref perm i2))
-                    (aset perm i1 i2letter)
-                    (aset perm i2 i1letter)
-                    (setq temp (/ temp 10))))
+(defun swap-n-random (perm temp)
+   "Swaps a random character in perm with the next one adjacent to it, wrapping from end to beginning."
+   (let ((len (length perm))
+         (i1) (i2) (i1letter) (i2letter))
+         (while (> temp 0)
+            (progn
+               (set 'i1 (random len))
+               (set 'i2 (% (1+ i1) len))
+               (set 'i1letter (aref perm i1))
+               (set 'i2letter (aref perm i2))
+               (aset perm i1 i2letter)
+               (aset perm i2 i1letter)
+               (setq temp (/ temp 10))))
       perm))
 #+END_SRC
-
-* Report
-
-1. The set of 20-words is as follows:
-look any just numbers be digit random pattern reason on ten in appear the a that first for to or
-
-To find these words, I used the curl command to slowly increment one row at a time until
-the distance no longer decreased. I then moved down to the next. 
-Once I had found the correct string to pass to the lcd-query (8202721241112883084a200010)
-I then used logic to slowly wittle down the possible words to where I could say that these 
-twenty words fit the lcd-query string requirements as well as the word-size-frequencies.
-
-To avoid "MIs", I will run my report through a spell-checker and grammer checker. I will
-also have two of my friends, who are English majors, check my report.
 
 
 * Feedback
