@@ -1,0 +1,195 @@
+#+TITLE:  3rd Exploration
+#+AUTHOR: Rick Neff
+#+EMAIL:  rick.neff@gmail.com
+#+LANGUAGE:  en
+#+OPTIONS:   H:4 num:t toc:nil \n:nil @:t ::t |:t ^:t *:t TeX:t LaTeX:t
+#+STARTUP:   showeverything
+
+* To Boldly Go ...
+
+  You are invited to apply what you've learned this semester to synthesize and
+  analyze algorithms for solving Problem 3 of your 1st Exploration by shrewdly
+  searching through a sentential solution space, combinatorially explosive, vast
+  in its extent. This invitation to exploration is codenamed [[file:vastness.org][vastness]].
+
+* Code
+
+#+BEGIN_SRC emacs-lisp :tangle vastness-setup.el
+  (require 'cl)
+
+  (defun keep-only-up-to-seven-letter-words (words-filename)
+    "Given a words-filename, extract and return as a list only
+     those words with seven letters or fewer."
+    (let ((good-list nil) begin word)
+      (with-temp-buffer
+        (insert-file-contents words-filename)
+        (while (not (looking-at "^$"))
+          (setq begin (point))
+          (end-of-line)
+          (setq word (buffer-substring-no-properties begin (point)))
+          (if (<= (length word) 7)
+              (setq good-list (cons word good-list)))
+          (forward-char 1)
+          ))
+      good-list))
+
+  (defun word-size-frequencies-match (subset-of-words)
+    (let* ((letter-counts (make-vector 20 0))
+           (frequencies (make-vector 8 0))
+           (target [0 1 5 4 3 2 3 2]))
+      (loop for word in subset-of-words
+            for i from 0
+            do (aset letter-counts i (length word)))
+      (loop for i from 1 to 7
+            do (aset frequencies i (loop for n across letter-counts count (= i n))))
+      (equal frequencies target)))
+
+  (defun has-exactly-77-letters (subset-of-words)
+    (= 77 (apply #'+ (mapcar #'length subset-of-words))))
+
+  (defun is-good-candidate-subset (subset-of-words)
+    (and (and (word-size-frequencies-match subset-of-words)
+              (has-exactly-77-letters subset-of-words))
+              (string= (generate-count-as-string subset-of-words) 
+                        "8202721241112883084A200010")))
+
+  (defun word-list ()
+    "Thirty-one words, some twenty-word subset of which is the right one."
+    (quote ("digit"
+            "be"
+            "to"
+            "just"
+            "a"
+            "any"
+            "numbers"
+            "or"
+            "pattern"
+            "first"
+            "reason"
+            "appear"
+            "on"
+            "look"
+            "ten"
+            "that"
+            "for"
+            "in"
+            "random"
+            "the")))
+
+  (defun choose-random-twenty-from-word-list ()
+    (let ((twenty-list nil)
+          (random-word nil)
+          (the-list (word-list)))
+      (loop while (not (= 20 (length twenty-list)))
+            do (setq random-word (nth (random 35) the-list))
+            (unless (member random-word twenty-list)
+              (setq twenty-list (cons random-word twenty-list))))
+      twenty-list))
+
+  (defun find-a-few-good-candidates (&optional n)
+    (if (null n) (setq n 20000000))
+    (let ((filename "good-candidates.txt"))
+      (with-temp-buffer
+        (and (file-readable-p filename) (insert-file-contents filename))
+        (loop repeat n
+              do (let ((random-twenty (choose-random-twenty-from-word-list)))
+                   (when (is-good-candidate-subset random-twenty)
+                     (insert (mapconcat #'identity random-twenty " "))
+                     (insert "\n"))))
+        (write-file filename))))
+
+  (defvar shell-command-format-string "curl -s https://firstthreeodds.org/run/app?lcdq+%s")
+
+  (defun lcd-query (counts-as-string)
+    (let* ((response (shell-command-to-string (format shell-command-format-string counts-as-string)))
+           (response (replace-regexp-in-string "\n" "" response))
+           (distance (if (string= response "bad query") most-positive-fixnum
+                       (string-to-number response))))
+      distance))
+
+
+#+END_SRC
+
+#+RESULTS:
+: lcd-query
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+(defun generate-count-as-string (candidate)
+   (interactive "r")
+   (let ((response)
+         (cmdStr (format "python3 test.py %s" candidate)))
+      (setq response (replace-regexp-in-string "\n" "" (shell-command-to-string cmdStr)))
+   response))
+
+(string= (generate-count-as-string "look any just numbers be digit random pattern reason on ten in appear the a that first for to or") "8202721241112883084A200010")
+
+
+(word-size-frequencies-match "look any just numbers be digit random pattern reason on ten in appear the a that first for to or")
+
+
+(is-good-candidate-subset "look any just numbers be digit random pattern reason on ten in appear the a that first for to or")
+
+(find-a-few-good-candidates 1000)
+
+
+
+(defun riffle-shuffle (x)
+   (let* ((response (shell-command-to-string (format "python3 riffle-shuffle.py %s" x)))
+          (response (replace-regexp-in-string "\n" "" response)))
+      response))
+
+(riffle-shuffle "abcdefghijklmnopqrst")
+
+(defun pair-shuffle (x temp)
+   (let* ((response (shell-command-to-string (format "python3 pair-shuffle.py %s %s" x temp)))
+          (response (replace-regexp-in-string "\n" "" response)))
+      response))
+
+(pair-shuffle "abcdefg" 151512)
+
+(defun fish-shuffle (x temp)
+   (let* ((response (shell-command-to-string (format "python3 fish.py %s %s" x temp)))
+          (response (replace-regexp-in-string "\n" "" response)))
+      response))
+
+(defun try-shuffle (x temp)
+   (let* ((response (shell-command-to-string (format "python3 n-shuffle.py %s %s" x temp)))
+          (response (replace-regexp-in-string "\n" "" response)))
+      response))
+
+(try-shuffle "abcdefghijklmnopqrst" 1512352351235)
+
+(split-string "abcdefghijklmnopqrst" "" t)
+
+  (defun swap-n-random (perm temp)
+    "Swaps a random character in perm with the next one adjacent to it, wrapping from end to beginning."
+    (let ((len (length perm))
+          (i1) (i2) (i1letter) (i2letter))
+          (while (> temp 0)
+             (progn
+                   (set 'i1 (random len))
+                    (set 'i2 (% (1+ i1) len))
+                    (set 'i1letter (aref perm i1))
+                    (set 'i2letter (aref perm i2))
+                    (aset perm i1 i2letter)
+                    (aset perm i2 i1letter)
+                    (setq temp (/ temp 10))))
+      perm))
+#+END_SRC
+
+* Report
+
+1. The set of 20-words is as follows:
+look any just numbers be digit random pattern reason on ten in appear the a that first for to or
+
+To find these words, I used the curl command to slowly increment one row at a time until
+the distance no longer decreased. I then moved down to the next. 
+Once I had found the correct string to pass to the lcd-query (8202721241112883084a200010)
+I then used logic to slowly wittle down the possible words to where I could say that these 
+twenty words fit the lcd-query string requirements as well as the word-size-frequencies.
+
+To avoid "MIs", I will run my report through a spell-checker and grammer checker. I will
+also have two of my friends, who are English majors, check my report.
+
+
+* Feedback
