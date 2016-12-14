@@ -82,6 +82,23 @@ def translate_energy(energy):
     energy = float(energy)
     return energy
 
+def double_ins_swap(code, i=0):
+    # insert a letter in a random spot after the current position
+    # select another letter in the range of 0 to the original
+    # repeat first step
+    # return
+    code = [code[i:i+1] for i in range(0, len(code), 1)]
+    start_index = rand.randint(0, len(code))
+    ins_target = code[start_index]
+    code_split = [code[:start_index+1], code[start_index+1:]]
+    ins_index = rand.randint(0, len(code_split[1]))
+    code_split[1].insert(ins_index,ins_target)
+    del code_split[0][code_split[0].index(ins_target)]
+    code = ''.join(code_split[0])+''.join(code_split[1])
+    if i == 0:
+        code = double_ins_swap(code, 1)
+    return code
+
 def shuffle_n_elements(code, n):
     code = [code[i:i+1] for i in range(0, len(code), 1)]
     start_index = rand.randint(0, n)
@@ -96,9 +113,9 @@ def scaled_shuffle(code, energy):
     return code
 
 string = 'abcdefghijklmnopqrst'
-# print(shuffle_n_elements(string, rand.randint(0, 19)))
-for i in range(100, 0, -1):
-   print(scaled_shuffle(string, i))
+print(double_ins_swap(string))
+# for i in range(100, 0, -1):
+#    print(scaled_shuffle(string, i))
 #for i in range(10000):
 #    shuf = rif_n(string, rand.randint(0,19))
 #    print(shuf)

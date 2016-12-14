@@ -79,18 +79,18 @@ def test_quad(quad, index):
     return collection.index(min(collection))
 
 def meat_chunks():
-    chunks = ['any pattern in', 
+    chunks = ['any pattern in',
               'a first look',
-              'ten digit numbers', 
-              'be random', 
-              'just appear to', 
+              'ten digit numbers',
+              'be random',
+              'just appear to',
               'or reason for',
-              'on', 'that', 'the'] 
+              'on', 'that', 'the']
     perms = perm(chunks)
     fout = open('meatchunks.txt', 'w')
     for p in perms:
         pcode = encode(' '.join(p))
-        if pcode[0] == 'b' and pcode[len(pcode)-1] == 'o':            
+        if pcode[0] == 'b' and pcode[len(pcode)-1] == 'o':
             print(pcode, end='\n', file=fout)
     fout.close()
 
@@ -113,7 +113,7 @@ def compute_meat():
           print(line.replace('\n','')+'\t q'+str(j),end='\n',file=fout2)
     fin2.close()
     fout2.close()
-    
+
 def riffle(deck):
     '''
     Shuffle a list like a deck of cards.
@@ -129,7 +129,7 @@ def riffle(deck):
         insert_index = index*2 + 1
         deck.insert(insert_index, item)
     return deck
-    
+
 def riffle_shuffle(code):
     n=1
     code = [code[i:i+n] for i in range(0, len(code), n)]
@@ -152,6 +152,7 @@ def paired_shuffle(code):
 print(riffle_shuffle('abcdefg'))
 print(paired_shuffle('abcdefg'))
 
+print(decode('bnhmpgsqekrlafjictdo'))
 #compute perms
 #for each perm compute heat, if heat goes up stop, return code
 #repeat with new code
@@ -186,4 +187,3 @@ print(paired_shuffle('abcdefg'))
 #fout.close()
 #print(decode(stuff[0][1]))
 #print(np.array(stuff))
-
